@@ -26,6 +26,7 @@ import {
   Menu,
   User as UserIcon,
   ChevronLeft,
+  Shield,
 } from "lucide-react";
 import { INSTITUTO } from "@/lib/constants";
 
@@ -36,7 +37,10 @@ export type View =
   | { name: "recursos-cl" }
   | { name: "razonamiento-matematico" }
   | { name: "curso-rm"; cursoId: string }
-  | { name: "recursos-rm" };
+  | { name: "recursos-rm" }
+  | { name: "admin" }
+  | { name: "admin-informes" }
+  | { name: "admin-cursos" };
 
 interface AppShellProps {
   view: View;
@@ -45,7 +49,7 @@ interface AppShellProps {
 }
 
 export default function AppShell({ view, setView, children }: AppShellProps) {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const go = (v: View) => {
@@ -65,6 +69,14 @@ export default function AppShell({ view, setView, children }: AppShellProps) {
       view: { name: "razonamiento-matematico" },
     },
   ];
+
+  if (isAdmin) {
+    navItems.push({
+      label: "Admin",
+      icon: <Shield className="w-4 h-4" />,
+      view: { name: "admin" },
+    });
+  }
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Profesor/a";
 
