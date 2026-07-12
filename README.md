@@ -151,44 +151,8 @@ Antes del primer uso, debes configurar tu proyecto de Firebase (`iesvdv-96a18`):
 
 ### 3. Configurar reglas de seguridad
 
-En **Firestore → Rules**, pega estas reglas (permiten a usuarios autenticados leer y escribir, pero bloquean accesos anónimos):
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
 
-Si quieres restringir más (cada profesor solo puede editar sus propias evidencias):
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /evidencias_lector/{docId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (
-        resource.data.createdBy == request.auth.uid ||
-        request.auth.token.email == 'admin@iesvdv.es'
-      );
-    }
-    match /evidencias_rm/{docId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (
-        resource.data.createdBy == request.auth.uid ||
-        request.auth.token.email == 'admin@iesvdv.es'
-      );
-    }
-  }
-}
-```
 
 ### 4. Colecciones creadas automáticamente
 
