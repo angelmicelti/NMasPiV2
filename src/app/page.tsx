@@ -12,9 +12,12 @@ import RecursosCL from "@/components/plan-lector/RecursosCL";
 import RazonamientoMatematicoHome from "@/components/rm/RazonamientoMatematicoHome";
 import CursoRM from "@/components/rm/CursoRM";
 import RecursosRM from "@/components/rm/RecursosRM";
+import AdminPanel from "@/components/admin/AdminPanel";
+import AdminCursos from "@/components/admin/AdminCursos";
+import AdminInformes from "@/components/admin/AdminInformes";
 
 export default function Page() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const [view, setView] = useState<View>({ name: "home" });
 
   // Register service worker on mount (PWA)
@@ -59,6 +62,11 @@ export default function Page() {
       )}
       {view.name === "curso-rm" && <CursoRM key={view.cursoId} cursoId={view.cursoId} />}
       {view.name === "recursos-rm" && <RecursosRM />}
+      
+      {/* Admin Views */}
+      {isAdmin && view.name === "admin" && <AdminPanel setView={setView} />}
+      {isAdmin && view.name === "admin-cursos" && <AdminCursos />}
+      {isAdmin && view.name === "admin-informes" && <AdminInformes />}
     </AppShell>
   );
 }
