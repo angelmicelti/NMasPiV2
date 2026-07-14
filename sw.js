@@ -1,7 +1,7 @@
 // Service Worker para Planes IES
 // Estrategia: network-first para HTML/JS/CSS, cache-first para assets estáticos
 
-const CACHE_NAME = 'planes-ies-v41';
+const CACHE_NAME = 'planes-ies-v42';
 const STATIC_ASSETS = [
   './',
   './index.html',
