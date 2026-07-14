@@ -77,6 +77,7 @@
 <!-- jsPDF y AutoTable -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script type="module">
 // =============================================================================
@@ -117,6 +118,12 @@ document.addEventListener("click", (e) => {
         break;
       case "repair-user":
         window._repairUser && window._repairUser();
+        break;
+      case "download-template":
+        window._downloadTemplate && window._downloadTemplate();
+        break;
+      case "upload-users":
+        document.getElementById("upload-users-input")?.click();
         break;
       case "toggle-role":
         window._toggleUserRole && window._toggleUserRole(btn.dataset.uid, btn.dataset.role);
@@ -3947,6 +3954,15 @@ function viewGestionUsuarios() {
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
               Reparar perfil
             </button>
+            <button data-action="download-template" class="px-3 py-1.5 rounded-md border border-blue-400 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium flex items-center gap-1.5 transition" title="Descargar plantilla Excel para carga masiva">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Plantilla
+            </button>
+            <button data-action="upload-users" class="px-3 py-1.5 rounded-md border border-purple-400 bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-medium flex items-center gap-1.5 transition" title="Cargar usuarios desde un archivo Excel">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Cargar Excel
+            </button>
+            <input type="file" id="upload-users-input" accept=".xlsx,.xls,.csv" class="hidden" />
           </div>
         </div>
       </div>
@@ -4183,6 +4199,174 @@ window._repairUser = async () => {
     alert("Error al crear el perfil: " + (e.code || e.message) + "\n\nVerifica las reglas de Firestore (panel amarillo en Usuarios).");
   }
 };
+
+// =============================================================================
+// DESCARGAR PLANTILLA EXCEL PARA CARGA MASIVA DE USUARIOS
+// =============================================================================
+window._downloadTemplate = () => {
+  if (typeof XLSX === "undefined") { alert("Error: librería XLSX no cargada."); return; }
+
+  // Crear datos de la plantilla
+  const headers = ["Nombre y Apellidos", "Correo Electrónico", "Departamento", "Rol", "Contraseña Temporal"];
+  const sampleRow1 = ["María García Pérez", "mgarcia@iesvdv.es", "Lengua Castellana", "profesor", "Mariposa29"];
+  const sampleRow2 = ["Juan López Ruiz", "jlopez@iesvdv.es", "Matemáticas", "profesor", "Tigre456"];
+
+  const wsData = [
+    headers,
+    sampleRow1,
+    sampleRow2,
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  // Anchos de columna
+  ws["!cols"] = [{ wch: 28 }, { wch: 28 }, { wch: 25 }, { wch: 12 }, { wch: 18 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+
+  // Crear segunda hoja con instrucciones
+  const instrData = [
+    ["INSTRUCCIONES PARA LA CARGA MASIVA DE USUARIOS"],
+    [""],
+    ["1. Rellena la hoja 'Usuarios' con un usuario por fila."],
+    ["2. Campos obligatorios: Nombre y Apellidos, Correo Electrónico, Departamento, Contraseña Temporal."],
+    ["3. El campo Rol es opcional. Valores válidos: 'profesor' (por defecto) o 'admin'."],
+    ["4. Departamento debe ser uno de los siguientes:"],
+    ...DEPARTAMENTOS.map(d => ["   - " + d]),
+    ["5. La contraseña temporal debe tener al menos 6 caracteres."],
+    ["6. Si un correo ya existe en Firebase Authentication, ese usuario se omitirá."],
+    ["7. Guarda el archivo como .xlsx y súbelo con el botón 'Cargar Excel'."],
+    [""],
+    ["NOTA: Los correos duplicados dentro del archivo también se omitirán."],
+  ];
+  const wsInstr = XLSX.utils.aoa_to_sheet(instrData);
+  wsInstr["!cols"] = [{ wch: 80 }];
+  XLSX.utils.book_append_sheet(wb, wsInstr, "Instrucciones");
+
+  XLSX.writeFile(wb, "plantilla_usuarios.xlsx");
+};
+
+// =============================================================================
+// CARGAR USUARIOS DESDE ARCHIVO EXCEL
+// =============================================================================
+window._uploadUsersFromFile = async (file) => {
+  if (typeof XLSX === "undefined") { alert("Error: librería XLSX no cargada."); return; }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: "array" });
+
+      // Buscar la hoja "Usuarios" o usar la primera
+      let ws = wb.Sheets["Usuarios"];
+      if (!ws) ws = wb.Sheets[wb.SheetNames[0]];
+      if (!ws) { alert("No se encontró ninguna hoja en el archivo."); return; }
+
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      if (rows.length < 2) { alert("El archivo no tiene datos (solo cabeceras)."); return; }
+
+      // Asumir que la primera fila son cabeceras
+      const headers = rows[0].map(h => String(h).trim().toLowerCase());
+      const dataRows = rows.slice(1).filter(r => r.length > 0 && r[0]);
+
+      // Mapear columnas por nombre
+      const colNombre = headers.findIndex(h => h.includes("nombre"));
+      const colEmail = headers.findIndex(h => h.includes("correo") || h.includes("email"));
+      const colDepto = headers.findIndex(h => h.includes("departamento"));
+      const colRol = headers.findIndex(h => h.includes("rol"));
+      const colPass = headers.findIndex(h => h.includes("contraseña") || h.includes("password"));
+
+      if (colNombre < 0 || colEmail < 0) {
+        alert("El archivo debe tener columnas 'Nombre y Apellidos' y 'Correo Electrónico'.");
+        return;
+      }
+
+      // Procesar cada fila
+      const results = { created: 0, skipped: 0, errors: [] };
+      const processedEmails = new Set();
+
+      // Mostrar progreso
+      const overlay = document.createElement("div");
+      overlay.id = "upload-progress";
+      overlay.className = "fixed inset-0 z-50 flex items-center justify-center p-3";
+      overlay.innerHTML = `
+        <div class="absolute inset-0 dialog-overlay"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-center fade-in">
+          <svg class="w-10 h-10 mx-auto text-blue-600 animate-spin mb-3" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20"/></svg>
+          <p class="text-sm font-semibold text-slate-800">Cargando usuarios...</p>
+          <p class="text-xs text-slate-500 mt-1" id="upload-progress-text">Procesando 0 de ${dataRows.length}</p>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      for (let i = 0; i < dataRows.length; i++) {
+        const row = dataRows[i];
+        const nombre = String(row[colNombre] || "").trim();
+        const email = String(row[colEmail] || "").trim().toLowerCase();
+        const departamento = colDepto >= 0 ? String(row[colDepto] || "").trim() : "";
+        const rol = colRol >= 0 ? String(row[colRol] || "profesor").trim().toLowerCase() : "profesor";
+        const password = colPass >= 0 ? String(row[colPass] || "").trim() : "";
+
+        // Actualizar progreso
+        const progText = document.getElementById("upload-progress-text");
+        if (progText) progText.textContent = `Procesando ${i + 1} de ${dataRows.length}`;
+
+        // Validar
+        if (!nombre || nombre.length < 3) { results.errors.push(`Fila ${i + 2}: nombre inválido`); continue; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { results.errors.push(`Fila ${i + 2}: correo inválido (${email})`); continue; }
+        if (!departamento || !DEPARTAMENTOS.includes(departamento)) { results.errors.push(`Fila ${i + 2}: departamento inválido (${departamento})`); continue; }
+        if (password.length < 6) { results.errors.push(`Fila ${i + 2}: contraseña demasiado corta`); continue; }
+        if (rol !== "profesor" && rol !== "admin") { results.errors.push(`Fila ${i + 2}: rol inválido (${rol})`); continue; }
+
+        // Duplicado en el archivo
+        if (processedEmails.has(email)) { results.skipped++; results.errors.push(`Fila ${i + 2}: correo duplicado en el archivo (${email})`); continue; }
+        // Duplicado en Firestore
+        if (state.usuarios.some(u => (u.email || "").toLowerCase() === email)) { results.skipped++; results.errors.push(`Fila ${i + 2}: ya existe en la lista (${email})`); continue; }
+
+        processedEmails.add(email);
+
+        try {
+          await createUsuarioByAdmin({ nombre, email, departamento, rol, password });
+          results.created++;
+        } catch (err) {
+          results.skipped++;
+          results.errors.push(`Fila ${i + 2}: ${err.message || err.code || "error desconocido"}`);
+        }
+      }
+
+      // Quitar overlay de progreso
+      document.getElementById("upload-progress")?.remove();
+
+      // Refrescar lista
+      refreshUsuariosNow();
+
+      // Mostrar resumen
+      let msg = `Carga masiva completada.\n\n`;
+      msg += `Usuarios creados: ${results.created}\n`;
+      msg += `Usuarios omitidos: ${results.skipped}\n`;
+      if (results.errors.length > 0) {
+        msg += `\nErrores (${results.errors.length}):\n`;
+        msg += results.errors.slice(0, 20).join("\n");
+        if (results.errors.length > 20) msg += `\n...y ${results.errors.length - 20} más`;
+      }
+      alert(msg);
+
+    } catch (err) {
+      console.error("[_uploadUsersFromFile] Error:", err);
+      document.getElementById("upload-progress")?.remove();
+      alert("Error al procesar el archivo: " + (err.message || err));
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+// Configurar el listener del input file
+document.addEventListener("change", (e) => {
+  if (e.target.id === "upload-users-input" && e.target.files[0]) {
+    window._uploadUsersFromFile(e.target.files[0]);
+    e.target.value = ""; // Reset para permitir re-subir el mismo archivo
+  }
+});
 
 // =============================================================================
 // DIÁLOGO: AÑADIR NUEVO USUARIO (solo admin)
