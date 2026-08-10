@@ -1,0 +1,103 @@
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+body { font-family: 'Inter', system-ui, sans-serif; }
+* { -webkit-touch-callout: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Animaciones */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.25s ease-out; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.slide-up { animation: slideUp 0.3s ease-out; }
+
+/* Eval accordion */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .acc-chevron { transform: rotate(180deg); }
+.acc-chevron { transition: transform 0.2s; }
+
+/* Dialog overlay */
+.dialog-overlay { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); }
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Celdas del cronograma lector con evidencia */
+.cell-has-evidence { background-color: #ecfdf5; border-color: #34d399; }
+.cell-has-evidence:hover { background-color: #d1fae5; }
+.cell-no-evidence { background-color: #ffffff; border-color: #e2e8f0; }
+.cell-no-evidence:hover { border-color: #60a5fa; background-color: #eff6ff; }
+
+/* === RESPONSIVIDAD MÓVIL === */
+
+/* Touch-friendly: botones más grandes en móvil */
+@media (max-width: 768px) {
+  button {
+    min-height: 36px;
+  }
+  /* Tabla de usuarios: scroll horizontal */
+  table {
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Diálogos: ancho casi completo */
+  .fixed.inset-0 > .relative {
+    max-width: 95vw !important;
+  }
+  /* Cronograma: celdas más anchas, scroll horizontal natural */
+  .grid-cols-\[44px_repeat\(5,1fr\)\] {
+    grid-template-columns: 40px repeat(5, minmax(50px, 1fr));
+  }
+  .grid-cols-\[80px_repeat\(5,1fr\)\] {
+    grid-template-columns: 60px repeat(5, minmax(60px, 1fr));
+  }
+}
+
+/* PWA: ocultar barras del navegador en standalone */
+@media (display-mode: standalone) {
+  body { user-select: none; }
+  input, textarea { user-select: text; }
+}
+
+/* iOS: safe areas para notch y home indicator */
+@supports (padding: env(safe-area-inset-top)) {
+  header.sticky { padding-top: max(0px, env(safe-area-inset-top)); }
+  footer { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
+}
+
+/* Mejorar legibilidad en móvil */
+@media (max-width: 640px) {
+  .text-xs { font-size: 11px; }
+  .text-\[10px\] { font-size: 9px; }
+  .text-\[9px\] { font-size: 8px; }
+}
+
+/* Prevenir zoom en inputs iOS */
+@media (max-width: 768px) {
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="date"], select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Tabla de usuarios: responsive */
+@media (max-width: 768px) {
+  table { font-size: 12px; }
+  th, td { padding: 8px 6px; }
+}
+
+/* Modales: scroll suave en móvil */
+.fixed.inset-0 > .relative {
+  -webkit-overflow-scrolling: touch;
+}
