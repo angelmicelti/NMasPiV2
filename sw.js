@@ -1,29 +1,35 @@
-// Service Worker para Planes IES
-// Estrategia: network-first para HTML/JS/CSS, cache-first para assets estáticos
+// Service Worker para nmaspi.html (app de archivo ÚNICO)
+// Estrategia: network-first para navegación (HTML), cache-first para el resto de
+// assets estáticos, con actualización en segundo plano.
+//
+// IMPORTANTE (v2.13): la precarga inicial solo incluye el archivo REAL de la app
+// (nmaspi.html). La lista antigua (index.html, app.js, styles.css, manifest.json,
+// icon-*.png) apuntaba a ficheros que NO existen en el despliegue: cache.addAll()
+// fallaba, el evento install terminaba en error y el SW nunca llegaba a activarse
+// (sin PWA offline y sin caché). Además, la instalación ahora es RESILIENTE: si
+// algún asset falla, se precachea el resto en vez de abortar todo.
+//
+// Al publicar una versión nueva de la app: sube CACHE_NAME al mismo número de
+// APP_VERSION de nmaspi.html. La activación borra las cachés antiguas y
+// skipWaiting()+clients.claim() ponen la versión nueva en marcha al momento.
 
-const CACHE_NAME = 'planes-ies-v43';
+const CACHE_NAME = 'nmaspi-v2.22';
 const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './app.js',
-  './styles.css',
-  './manifest.json',
-  './icon.svg',
-  './icon-192.png',
-  './icon-512.png',
+  './nmaspi.html',
 ];
 
-// Instalación: precachear assets estáticos
+// Instalación: precachear assets estáticos (resiliente: un asset que falte no
+// aborta la instalación del SW)
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(cache => Promise.allSettled(STATIC_ASSETS.map(a => cache.add(a))))
       .then(() => self.skipWaiting())
       .catch(err => console.warn('[SW] Error en install:', err))
   );
 });
 
-// Activación: limpiar caches antiguos
+// Activación: limpiar caches antiguos (incluida cualquier 'planes-ies-*' previa)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
@@ -58,7 +64,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
           return res;
         })
-        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+        .catch(() => caches.match(req).then(r => r || caches.match('./nmaspi.html')))
     );
     return;
   }

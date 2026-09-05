@@ -409,7 +409,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.22";
+const APP_VERSION = "2.21";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -788,26 +788,6 @@ const ENLACES_RECURSOS_RM = [
   { titulo: "Plan de Impulso al Razonamiento Matemático", descripcion: "Instrucciones de la Junta de Andalucía para la implementación del Plan de Impulso del Razonamiento Matemático en los centros.", url: ENLACES_NORMATIVA.instruccionesRM },
   { titulo: "Guía de Refuerzo de la Competencia Matemática", descripcion: "Guía oficial con orientaciones prácticas y ejemplos de actividades para el desarrollo de la competencia matemática.", url: ENLACES_NORMATIVA.instruccionesRM },
 ];
-
-// --- Paletas suaves para las tarjetas de las vistas «Recursos» (v2.22) ---
-// Cada tarjeta toma un color distinto de la familia del banner de su sección
-// (RM: esmeralda→índigo · Lectura/CL: azul→púrpura), en tonos poco intensos:
-// tinte de fondo muy claro (-50/60) + franja izquierda fina de color (-400).
-const TARJETAS_RECURSOS_RM = [
-  { fondo: "bg-emerald-50/60", bordeL: "border-l-emerald-400", hoverBorde: "hover:border-emerald-300", hoverTitulo: "group-hover:text-emerald-700" },
-  { fondo: "bg-indigo-50/60",  bordeL: "border-l-indigo-400",  hoverBorde: "hover:border-indigo-300",  hoverTitulo: "group-hover:text-indigo-700" },
-  { fondo: "bg-blue-50/60",    bordeL: "border-l-blue-400",    hoverBorde: "hover:border-blue-300",    hoverTitulo: "group-hover:text-blue-700" },
-  { fondo: "bg-teal-50/60",    bordeL: "border-l-teal-400",    hoverBorde: "hover:border-teal-300",    hoverTitulo: "group-hover:text-teal-700" },
-  { fondo: "bg-violet-50/60",  bordeL: "border-l-violet-400",  hoverBorde: "hover:border-violet-300",  hoverTitulo: "group-hover:text-violet-700" },
-  { fondo: "bg-cyan-50/60",    bordeL: "border-l-cyan-400",    hoverBorde: "hover:border-cyan-300",    hoverTitulo: "group-hover:text-cyan-700" },
-];
-const TARJETAS_RECURSOS_CL = [
-  { fondo: "bg-blue-50/60",    bordeL: "border-l-blue-400",    hoverBorde: "hover:border-blue-300",    hoverTitulo: "group-hover:text-blue-700" },
-  { fondo: "bg-purple-50/60",  bordeL: "border-l-purple-400",  hoverBorde: "hover:border-purple-300",  hoverTitulo: "group-hover:text-purple-700" },
-  { fondo: "bg-fuchsia-50/60", bordeL: "border-l-fuchsia-400", hoverBorde: "hover:border-fuchsia-300", hoverTitulo: "group-hover:text-fuchsia-700" },
-];
-// Color de la tarjeta i-ésima: cicla la paleta si hay más tarjetas que colores.
-const tarjetaRecursoColor = (paleta, i) => paleta[i % paleta.length];
 
 // -----------------------------------------------------------------------------
 // 3. UTILIDADES DE FECHA Y CURSOS ESCOLARES
@@ -3930,8 +3910,6 @@ window._deleteAportacion = async (id) => {
 // 13. VIEW: RECURSOS CL
 // -----------------------------------------------------------------------------
 function viewRecursosCL() {
-  const col = (i) => tarjetaRecursoColor(TARJETAS_RECURSOS_CL, i);
-  const cFB = col(ENLACES_RECURSOS_CL.length);
   return `
     <div class="space-y-5">
       <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg p-5 sm:p-7 flex items-center gap-4">
@@ -3944,14 +3922,14 @@ function viewRecursosCL() {
         </div>
       </div>
       <div class="grid gap-4 sm:grid-cols-2">
-        ${ENLACES_RECURSOS_CL.map((r, i) => `
-          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl ${col(i).fondo} border border-slate-200 border-l-4 ${col(i).bordeL} ${col(i).hoverBorde} hover:shadow-lg transition">
-            <h3 class="font-bold text-slate-800 ${col(i).hoverTitulo} flex items-center gap-1">${r.titulo} →</h3>
+        ${ENLACES_RECURSOS_CL.map(r => `
+          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 hover:shadow-lg transition">
+            <h3 class="font-bold text-slate-800 group-hover:text-blue-700 flex items-center gap-1">${r.titulo} →</h3>
             <p class="text-sm text-slate-600 mt-1">${r.descripcion}</p>
           </a>
         `).join("")}
-        <button data-action="open-feedback" data-tipo="lectura" class="group block w-full text-left p-5 rounded-xl ${cFB.fondo} border border-slate-200 border-l-4 ${cFB.bordeL} ${cFB.hoverBorde} hover:shadow-lg transition">
-          <h3 class="font-bold text-slate-800 ${cFB.hoverTitulo} flex items-center gap-1">Feedback entre compañer@s →</h3>
+        <button data-action="open-feedback" data-tipo="lectura" class="group block w-full text-left p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 hover:shadow-lg transition">
+          <h3 class="font-bold text-slate-800 group-hover:text-blue-700 flex items-center gap-1">Feedback entre compañer@s →</h3>
           <p class="text-sm text-slate-600 mt-1">Comparte con el profesorado actividades, experiencias y recursos del Plan Lector y consulta lo aportado por tus compañer@s.</p>
           <p class="text-xs text-slate-400 mt-2">${state.feedback.filter(a => a.tipo === "lectura").length} aportación(es) · curso ${cursoEscolarActivo()}</p>
         </button>
@@ -4596,8 +4574,6 @@ window._deleteEvRM = async () => {
 // 19. VIEW: RECURSOS RM
 // -----------------------------------------------------------------------------
 function viewRecursosRM() {
-  const col = (i) => tarjetaRecursoColor(TARJETAS_RECURSOS_RM, i);
-  const cFB = col(ENLACES_RECURSOS_RM.length);
   return `
     <div class="space-y-5">
       <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-indigo-600 text-white shadow-lg p-5 sm:p-7 flex items-center gap-4">
@@ -4610,14 +4586,14 @@ function viewRecursosRM() {
         </div>
       </div>
       <div class="grid gap-4 sm:grid-cols-2">
-        ${ENLACES_RECURSOS_RM.map((r, i) => `
-          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl ${col(i).fondo} border border-slate-200 border-l-4 ${col(i).bordeL} ${col(i).hoverBorde} hover:shadow-lg transition">
-            <h3 class="font-bold text-slate-800 ${col(i).hoverTitulo} flex items-center gap-1">${r.titulo} →</h3>
+        ${ENLACES_RECURSOS_RM.map(r => `
+          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition">
+            <h3 class="font-bold text-slate-800 group-hover:text-emerald-700 flex items-center gap-1">${r.titulo} →</h3>
             <p class="text-sm text-slate-600 mt-1">${r.descripcion}</p>
           </a>
         `).join("")}
-        <button data-action="open-feedback" data-tipo="rm" class="group block w-full text-left p-5 rounded-xl ${cFB.fondo} border border-slate-200 border-l-4 ${cFB.bordeL} ${cFB.hoverBorde} hover:shadow-lg transition">
-          <h3 class="font-bold text-slate-800 ${cFB.hoverTitulo} flex items-center gap-1">Feedback entre compañer@s →</h3>
+        <button data-action="open-feedback" data-tipo="rm" class="group block w-full text-left p-5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition">
+          <h3 class="font-bold text-slate-800 group-hover:text-emerald-700 flex items-center gap-1">Feedback entre compañer@s →</h3>
           <p class="text-sm text-slate-600 mt-1">Comparte con el profesorado actividades, experiencias y recursos del Plan de Razonamiento Matemático y consulta lo aportado por tus compañer@s.</p>
           <p class="text-xs text-slate-400 mt-2">${state.feedback.filter(a => a.tipo === "rm").length} aportación(es) · curso ${cursoEscolarActivo()}</p>
         </button>

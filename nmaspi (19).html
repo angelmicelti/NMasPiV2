@@ -280,29 +280,6 @@ document.addEventListener("click", (e) => {
       case "delete-ev-lector":
         window._deleteEvLector && window._deleteEvLector();
         break;
-      // --- Feedback entre compañer@s (aportaciones, v2.21) ---
-      case "open-feedback":
-        window._openFeedback && window._openFeedback(btn.dataset.tipo);
-        break;
-      case "close-feedback":
-        window._closeFeedbackDialog && window._closeFeedbackDialog();
-        break;
-      case "fb-mode-form":
-      case "fb-add":
-        window._feedbackMode && window._feedbackMode("form");
-        break;
-      case "fb-mode-list":
-        window._feedbackMode && window._feedbackMode("list");
-        break;
-      case "save-feedback":
-        window._saveFeedback && window._saveFeedback();
-        break;
-      case "fb-edit":
-        window._editAportacion && window._editAportacion(btn.dataset.id);
-        break;
-      case "fb-delete":
-        window._deleteAportacion && window._deleteAportacion(btn.dataset.id);
-        break;
       // --- Evidencias RM ---
       case "open-ev-rm":
         window._openEvRMDialog && window._openEvRMDialog(btn.dataset.mode, btn.dataset.grupo, parseInt(btn.dataset.semana), parseInt(btn.dataset.sesion), btn.dataset.materia, btn.dataset.actividad, btn.dataset.codigo);
@@ -408,8 +385,8 @@ const INSTITUTO = {
 
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
-// ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.22";
+// ejecutando la versión nueva (sin correos) o una copia antigua cacheada por la PWA.
+const APP_VERSION = "2.14";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -779,6 +756,7 @@ const LECTOR_AREA = "SL";
 const ENLACES_RECURSOS_CL = [
   { titulo: "Plan Lector en el Plan de Centro del IES", descripcion: "Documento público con el desarrollo completo del Plan para el Refuerzo de la Competencia Lingüística en el Plan de Centro.", url: "https://docs.google.com/document/d/e/2PACX-1vQWh5cK5NK8MVjPitjdjtDecVzzvamQmOiHGUXvTAPE7NIyx9a9rrutghCCiwW1waQJ5crWjIsKPq-N/pub" },
   { titulo: "Guía para el Refuerzo de la Competencia Lectora", descripcion: "Guía oficial de la Junta de Andalucía con orientaciones para el desarrollo del plan de lectura en los centros educativos.", url: "https://www.juntadeandalucia.es/educacion/descargas/recursos/lectura/html/index.html" },
+  { titulo: "Feedback entre compañer@s", descripcion: "Hoja compartida para que el profesorado comparta experiencias, recursos y propuestas de mejora organizadas por ámbitos.", url: "https://docs.google.com/spreadsheets/d/1Ugge_isBJyWPpj7gJ1dUe_kaPnP3s0UH4VKZkqfIW_E/edit" },
 ];
 
 const ENLACES_RECURSOS_RM = [
@@ -787,27 +765,8 @@ const ENLACES_RECURSOS_RM = [
   { titulo: "Plantilla para la resolución de problemas científicos y tecnológicos", descripcion: "Plantilla editable para el alumnado con el método de resolución de problemas paso a paso.", url: "https://docs.google.com/document/d/1SOx9vlEndNgWEFP3a-uTSPkUpO9mldWzbATgt2EJCrs/edit?usp=sharing" },
   { titulo: "Plan de Impulso al Razonamiento Matemático", descripcion: "Instrucciones de la Junta de Andalucía para la implementación del Plan de Impulso del Razonamiento Matemático en los centros.", url: ENLACES_NORMATIVA.instruccionesRM },
   { titulo: "Guía de Refuerzo de la Competencia Matemática", descripcion: "Guía oficial con orientaciones prácticas y ejemplos de actividades para el desarrollo de la competencia matemática.", url: ENLACES_NORMATIVA.instruccionesRM },
+  { titulo: "Feedback entre compañer@s", descripcion: "Hoja compartida para el intercambio de experiencias y recursos del Plan de Razonamiento Matemático, organizada por ámbitos.", url: "https://docs.google.com/spreadsheets/d/1e8lkjHpMVBWR3EzVzZt6DBFbx3rzGAQGPp_Kr0h-do0/edit" },
 ];
-
-// --- Paletas suaves para las tarjetas de las vistas «Recursos» (v2.22) ---
-// Cada tarjeta toma un color distinto de la familia del banner de su sección
-// (RM: esmeralda→índigo · Lectura/CL: azul→púrpura), en tonos poco intensos:
-// tinte de fondo muy claro (-50/60) + franja izquierda fina de color (-400).
-const TARJETAS_RECURSOS_RM = [
-  { fondo: "bg-emerald-50/60", bordeL: "border-l-emerald-400", hoverBorde: "hover:border-emerald-300", hoverTitulo: "group-hover:text-emerald-700" },
-  { fondo: "bg-indigo-50/60",  bordeL: "border-l-indigo-400",  hoverBorde: "hover:border-indigo-300",  hoverTitulo: "group-hover:text-indigo-700" },
-  { fondo: "bg-blue-50/60",    bordeL: "border-l-blue-400",    hoverBorde: "hover:border-blue-300",    hoverTitulo: "group-hover:text-blue-700" },
-  { fondo: "bg-teal-50/60",    bordeL: "border-l-teal-400",    hoverBorde: "hover:border-teal-300",    hoverTitulo: "group-hover:text-teal-700" },
-  { fondo: "bg-violet-50/60",  bordeL: "border-l-violet-400",  hoverBorde: "hover:border-violet-300",  hoverTitulo: "group-hover:text-violet-700" },
-  { fondo: "bg-cyan-50/60",    bordeL: "border-l-cyan-400",    hoverBorde: "hover:border-cyan-300",    hoverTitulo: "group-hover:text-cyan-700" },
-];
-const TARJETAS_RECURSOS_CL = [
-  { fondo: "bg-blue-50/60",    bordeL: "border-l-blue-400",    hoverBorde: "hover:border-blue-300",    hoverTitulo: "group-hover:text-blue-700" },
-  { fondo: "bg-purple-50/60",  bordeL: "border-l-purple-400",  hoverBorde: "hover:border-purple-300",  hoverTitulo: "group-hover:text-purple-700" },
-  { fondo: "bg-fuchsia-50/60", bordeL: "border-l-fuchsia-400", hoverBorde: "hover:border-fuchsia-300", hoverTitulo: "group-hover:text-fuchsia-700" },
-];
-// Color de la tarjeta i-ésima: cicla la paleta si hay más tarjetas que colores.
-const tarjetaRecursoColor = (paleta, i) => paleta[i % paleta.length];
 
 // -----------------------------------------------------------------------------
 // 3. UTILIDADES DE FECHA Y CURSOS ESCOLARES
@@ -981,7 +940,6 @@ const state = {
   view: { name: "home" },
   evidenciasLector: [],
   evidenciasRM: [],
-  feedback: [], // aportaciones «Feedback entre compañer@s» del curso escolar activo (v2.21)
   usuarios: [], // lista de perfiles de usuario (para gestión admin)
   usuariosError: null, // error al leer la colección usuarios (permisos de Firestore)
   usuariosLastUpdated: null, // timestamp de la última lectura exitosa
@@ -1002,7 +960,6 @@ const state = {
 const subs = {
   lector: null,
   rm: null,
-  aportaciones: null, // Feedback entre compañer@s (v2.21)
   usuarios: null,
   cursos: null,
   ownProfile: null,
@@ -1125,24 +1082,6 @@ async function markNoAdmins() {
 let _avisoReglasPendiente = null;
 let _avisoReglasMostrado = false;
 let _avisoReglasVerificando = false;
-// Texto del aviso según la colección cuya operación se ha denegado. Para
-// «usuarios» el problema NO es el acceso por nombre de usuario (ese depende de
-// «usernames»/«config_public», y con reglas que dejan cargar el propio perfil el
-// login FUNCIONA): lo que falla es que las reglas no permiten al administrador
-// leer los perfiles ajenos (lista de Gestión de usuarios, migración de
-// departamentos, edición de otros perfiles).
-function _textoAvisoReglas(col) {
-  if (col === "usuarios") {
-    return {
-      principal: "<b>Reglas de Firestore desactualizadas:</b> la colección <code>usuarios</code> no permite al administrador leer los perfiles. La lista de usuarios de Gestión de usuarios fallará hasta publicar las reglas nuevas.",
-      consola: "las reglas publicadas no permiten al administrador leer la colección 'usuarios' (lista de perfiles)",
-    };
-  }
-  return {
-    principal: "<b>Reglas de Firestore desactualizadas:</b> falta la colección <code>" + escapeHtml(col) + "</code>. El acceso por nombre de usuario y el cambio de contraseñas fallarán hasta publicar las reglas nuevas.",
-    consola: "falta la colección '" + col + "'",
-  };
-}
 function avisoReglasDesactualizadas(coleccion) {
   _avisoReglasPendiente = _avisoReglasPendiente || coleccion;
   _mostrarAvisoReglasSiToca();
@@ -1150,37 +1089,20 @@ function avisoReglasDesactualizadas(coleccion) {
 function _pintarAvisoReglas() {
   if (_avisoReglasMostrado) return;
   _avisoReglasMostrado = true;
-  const t = _textoAvisoReglas(_avisoReglasPendiente);
-  console.warn("[reglas] Reglas de Firestore desactualizadas: " + t.consola + ". Publica las reglas nuevas desde Gestión de usuarios → «Copiar reglas».");
+  console.warn("[reglas] Reglas de Firestore desactualizadas: falta la colección '" + _avisoReglasPendiente + "'. Publica las reglas nuevas desde Gestión de usuarios → «Copiar reglas».");
   const bar = document.createElement("div");
   bar.id = "reglas-banner";
   bar.className = "fixed top-0 inset-x-0 z-[70] bg-rose-600 text-white shadow-lg";
   bar.innerHTML = `
     <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-2 text-sm">
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span>${t.principal}</span>
-      <span id="reglas-check-estado" class="hidden text-[11px] bg-white/15 rounded px-2 py-0.5"></span>
-      <button id="btn-reglas-check" class="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-bold whitespace-nowrap">Comprobar de nuevo</button>
+      <span><b>Reglas de Firestore desactualizadas:</b> falta la colección <code>${escapeHtml(_avisoReglasPendiente)}</code>. El acceso por nombre de usuario y el cambio de contraseñas fallarán hasta publicar las reglas nuevas.</span>
       <button data-action="copy-firestore-rules" class="ml-auto px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-rose-700 text-xs font-bold whitespace-nowrap">Copiar reglas</button>
       <button id="btn-reglas-close" class="px-2 py-1.5 text-white/80 hover:text-white text-xs font-bold" title="Cerrar">✕</button>
     </div>`;
   document.body.appendChild(bar);
   const close = document.getElementById("btn-reglas-close");
   if (close) close.onclick = () => bar.remove();
-  const checkBtn = document.getElementById("btn-reglas-check");
-  if (checkBtn) checkBtn.onclick = async () => {
-    const estado = document.getElementById("reglas-check-estado");
-    checkBtn.disabled = true;
-    checkBtn.textContent = "Comprobando…";
-    const ok = await _sondearReglasYActualizarAviso();
-    if (ok) return; // el sondeo ya retiró el banner y recargó la lista
-    checkBtn.disabled = false;
-    checkBtn.textContent = "Comprobar de nuevo";
-    if (estado) {
-      estado.textContent = "Sigue denegado: publica las reglas en Firebase Console y vuelve a comprobar.";
-      estado.classList.remove("hidden");
-    }
-  };
 }
 function _mostrarAvisoReglasSiToca() {
   if (!_avisoReglasPendiente || _avisoReglasMostrado || !isAdmin() || _avisoReglasVerificando) return;
@@ -1201,42 +1123,9 @@ function _mostrarAvisoReglasSiToca() {
       if ((e.code || "") === "permission-denied") _pintarAvisoReglas();
     });
 }
-// Comprobación ACTIVA de reglas (v2.16): lee un documento sondeo (que NO existe)
-// de la colección problemática. Firestore evalúa las reglas aunque el documento
-// no exista, así que: si la lectura se CONCEDE, las reglas publicadas ya son las
-// vigentes y el aviso se retira solo (recargando además la lista de usuarios sin
-// recargar la página); si se DENIEGA, siguen viejas. Devuelve true si ya están OK.
-function _sondearReglasYActualizarAviso() {
-  const col = _avisoReglasPendiente;
-  if (!col) return Promise.resolve(true);
-  _avisoReglasVerificando = true;
-  return getDoc(doc(db, col, "__sondeo_reglas__"))
-    .then(() => {
-      _avisoReglasVerificando = false;
-      _avisoReglasPendiente = null;
-      _avisoReglasMostrado = false;
-      document.getElementById("reglas-banner")?.remove();
-      console.info("[reglas] Comprobación superada: las reglas publicadas ya permiten leer '" + col + "'. Aviso retirado" + (col === "usuarios" ? " y lista de usuarios recargada." : "."));
-      if (col === "usuarios") _crearSubUsuarios("usuarios-recheck");
-      return true;
-    })
-    .catch(() => {
-      _avisoReglasVerificando = false;
-      return false;
-    });
-}
-// Re-comprobación en segundo plano al volver a la pestaña: cubre el flujo real
-// de «publico las reglas en Firebase Console (otra pestaña) y vuelvo a la app».
-function _sondearReglasSiBanner() {
-  if (_avisoReglasMostrado && _avisoReglasPendiente && document.getElementById("reglas-banner")) {
-    _sondearReglasYActualizarAviso();
-  }
-}
 // Gancho de pruebas (smoke_sesion_huerfana.js): dispara el mismo camino que un
 // permission-denied real de Firestore sin necesitar el backend.
 window._testAvisoReglas = avisoReglasDesactualizadas;
-// Gancho de pruebas: fuerza la comprobación activa de reglas.
-window._comprobarReglas = () => _sondearReglasYActualizarAviso();
 
 // SESIÓN HUÉRFANA (v2.14): el perfil del usuario logueado fue eliminado de
 // Firestore con la sesión de Authentication aún abierta (auto-borrado con la
@@ -1352,7 +1241,6 @@ function canEditEvidencia(ev) {
 function isDialogOpen() {
   return !!(
     document.getElementById("ev-lector-dialog") ||
-    document.getElementById("feedback-dialog") ||
     document.getElementById("ev-rm-dialog") ||
     document.getElementById("group-menu-overlay") ||
     document.getElementById("edit-user-dialog") ||
@@ -1404,53 +1292,6 @@ state.cursos = mergeCursos(state.cursos);
 // -----------------------------------------------------------------------------
 // 5. FIRESTORE CRUD
 // -----------------------------------------------------------------------------
-// --- Aislamiento por curso escolar (v2.15) ---
-// Cada evidencia se etiqueta al crearla con el curso escolar activo (campo
-// `cursoEscolar`, p. ej. "2025-2026"). Las suscripciones traen TODAS las
-// evidencias (así no hacen falta índices compuestos ni cambios de reglas) y el
-// AISLAMIENTO se hace en memoria: state.evidenciasLector / state.evidenciasRM
-// contienen SOLO las del curso activo (el forzado por el admin en Cursos
-// Escolares o el autodetectado por fecha). Los datos antiguos sin etiqueta se
-// infieren del campo `fecha` (Plan Lector) o de `createdAt` (RM), sin escribir
-// nada en Firestore.
-function cursoEscolarActivo() {
-  try {
-    const c = getCurrentCurso();
-    return c?.label || c?.id || computeSchoolYearLabel(new Date());
-  } catch (e) {
-    return computeSchoolYearLabel(new Date());
-  }
-}
-
-function cursoEscolarDeEvidencia(e) {
-  if (e && typeof e.cursoEscolar === "string" && /^\d{4}-\d{4}$/.test(e.cursoEscolar)) return e.cursoEscolar;
-  if (e && typeof e.fecha === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.fecha)) {
-    return computeSchoolYearLabel(new Date(e.fecha + "T12:00:00"));
-  }
-  const t = Number(e && e.createdAt);
-  return computeSchoolYearLabel(new Date(Number.isFinite(t) && t > 0 ? t : Date.now()));
-}
-
-// Copia íntegra de las evidencias (TODOS los cursos escolares). La usa el
-// recuento previo al borrado de cuentas: ese borrado afecta a todos los cursos.
-let _todasEvidenciasLector = [];
-let _todasEvidenciasRM = [];
-
-// Recalcula state.evidenciasLector / state.evidenciasRM a partir de las copias
-// íntegras, dejando solo las evidencias del curso escolar activo. También deja
-// al día las aportaciones de «Feedback entre compañer@s» (mismo aislamiento).
-let _todasAportaciones = [];
-function filtrarAportacionesPorCursoActivo() {
-  const curso = cursoEscolarActivo();
-  state.feedback = _todasAportaciones.filter(a => cursoEscolarDeAportacion(a) === curso);
-}
-function filtrarEvidenciasPorCursoActivo() {
-  const curso = cursoEscolarActivo();
-  state.evidenciasLector = _todasEvidenciasLector.filter(e => cursoEscolarDeEvidencia(e) === curso);
-  state.evidenciasRM = _todasEvidenciasRM.filter(e => cursoEscolarDeEvidencia(e) === curso);
-  filtrarAportacionesPorCursoActivo();
-}
-
 function subscribeAllLector(cb) {
   const q = query(collection(db, LECTOR_COLLECTION), orderBy("createdAt", "desc"));
   return onSnapshot(q, (snap) => {
@@ -1470,8 +1311,7 @@ function subscribeAllRM(cb) {
 }
 
 async function addEvidenciaLector(data) {
-  // cursoEscolar fija el año escolar de la evidencia (aislamiento por curso)
-  const payload = { ...data, cursoEscolar: cursoEscolarActivo(), createdAt: Date.now(), updatedAt: Date.now(), createdBy: state.user?.uid || null };
+  const payload = { ...data, createdAt: Date.now(), updatedAt: Date.now(), createdBy: state.user?.uid || null };
   return addDoc(collection(db, LECTOR_COLLECTION), payload);
 }
 async function updateEvidenciaLector(id, data) {
@@ -1481,8 +1321,7 @@ async function deleteEvidenciaLector(id) {
   return deleteDoc(doc(db, LECTOR_COLLECTION, id));
 }
 async function addEvidenciaRM(data) {
-  // cursoEscolar fija el año escolar de la evidencia (aislamiento por curso)
-  const payload = { ...data, cursoEscolar: cursoEscolarActivo(), createdAt: Date.now(), updatedAt: Date.now(), createdBy: state.user?.uid || null };
+  const payload = { ...data, createdAt: Date.now(), updatedAt: Date.now(), createdBy: state.user?.uid || null };
   return addDoc(collection(db, RM_COLLECTION), payload);
 }
 async function updateEvidenciaRM(id, data) {
@@ -1490,53 +1329,6 @@ async function updateEvidenciaRM(id, data) {
 }
 async function deleteEvidenciaRM(id) {
   return deleteDoc(doc(db, RM_COLLECTION, id));
-}
-
-// --- CRUD «Feedback entre compañer@s» (aportaciones, v2.21) ---
-// Recursos y experiencias que el profesorado comparte con el resto. Cada
-// aportación se etiqueta con el curso escolar activo (aislamiento v2.15) y
-// guarda quién la creó: solo su autor o un administrador pueden editarla o
-// borrarla (mismo criterio que las evidencias; la restricción fina se aplica
-// en la UI y las reglas publicables quedan al nivel de las evidencias).
-const APORTACIONES_COLLECTION = "aportaciones";
-const FEEDBACK_TIPOS = {
-  rm: "Actividad de razonamiento matemático",
-  lectura: "Actividad relativa a lectura",
-};
-function cursoEscolarDeAportacion(a) {
-  if (a && typeof a.cursoEscolar === "string" && /^\d{4}-\d{4}$/.test(a.cursoEscolar)) return a.cursoEscolar;
-  const t = Number(a && a.createdAt);
-  return computeSchoolYearLabel(new Date(Number.isFinite(t) && t > 0 ? t : Date.now()));
-}
-function canEditAportacion(a) {
-  if (!state.user) return false;
-  if (isAdmin()) return true;
-  return a?.createdBy === state.user.uid;
-}
-function subscribeAllAportaciones(cb) {
-  const q = query(collection(db, APORTACIONES_COLLECTION), orderBy("createdAt", "desc"));
-  return onSnapshot(q, (snap) => {
-    const items = [];
-    snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
-    cb(items);
-  }, (err) => { console.error("subscribeAportaciones:", err); cb([]); });
-}
-async function addAportacion(data) {
-  const payload = {
-    ...data,
-    cursoEscolar: cursoEscolarActivo(),
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    createdBy: state.user?.uid || null,
-    autorNombre: state.userProfile?.displayName || state.user?.displayName || state.userProfile?.username || "Profesor/a",
-  };
-  return addDoc(collection(db, APORTACIONES_COLLECTION), payload);
-}
-async function updateAportacion(id, data) {
-  return updateDoc(doc(db, APORTACIONES_COLLECTION, id), { ...data, updatedAt: Date.now() });
-}
-async function deleteAportacion(id) {
-  return deleteDoc(doc(db, APORTACIONES_COLLECTION, id));
 }
 
 // --- CRUD Usuarios ---
@@ -2099,25 +1891,6 @@ function subscribeAllUsuarios(cb) {
   });
 }
 
-// Crea (o re-crea) la suscripción en tiempo real a la lista de usuarios con el
-// tratamiento común de estado/UI. Se usa en el arranque de sesión, en la
-// re-suscripción periódica y tras una comprobación de reglas superada (v2.16),
-// para que la lista se recupere SIN recargar la página.
-function _crearSubUsuarios(tag) {
-  try { subs.usuarios && subs.usuarios(); } catch (e) {}
-  subs.usuarios = subscribeAllUsuarios((items, err) => {
-    state.usuarios = items || [];
-    state.usuariosError = err || null;
-    if (!err) state.usuariosLastUpdated = Date.now();
-    if (state.user && state.view.name === "gestion-usuarios") {
-      // Solo tabla + contador: reconstruir la vista cerraría el acordeón de importación
-      renderUsuariosDynamic(tag || "usuarios-snapshot");
-    } else if (state.user && state.view.name === "informes") {
-      safeRenderMain(tag || "usuarios-snapshot");
-    }
-  });
-}
-
 // Orden CANÓNICO de la lista de usuarios en memoria: POR APELLIDOS (comportamiento
 // general aplicado a TODOS los listados). Así, cualquier vista que recorra
 // state.usuarios en orden verá la lista alfabética aunque no reordene por su cuenta
@@ -2300,16 +2073,15 @@ async function refreshEvidenciasNow(which = "all") {
       const snap = await getDocs(q);
       const items = [];
       snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
-      _todasEvidenciasLector = items;
+      state.evidenciasLector = items;
     }
     if (which === "all" || which === "rm") {
       const q = query(collection(db, RM_COLLECTION), orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
       const items = [];
       snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
-      _todasEvidenciasRM = items;
+      state.evidenciasRM = items;
     }
-    filtrarEvidenciasPorCursoActivo();
     safeRenderMain("evidencias-refresh");
   } catch (err) {
     console.error("refreshEvidenciasNow:", err);
@@ -2326,7 +2098,7 @@ function setupGlobalSync() {
   // Limpiar suscripciones y timers previos
   Object.values(subs).forEach(s => { try { s && s(); } catch (e) {} });
   Object.values(timers).forEach(t => { if (t) clearInterval(t); });
-  subs.lector = subs.rm = subs.aportaciones = subs.usuarios = subs.cursos = subs.ownProfile = subs.cursoProfesores = null;
+  subs.lector = subs.rm = subs.usuarios = subs.cursos = subs.ownProfile = subs.cursoProfesores = null;
   timers.usuarios = timers.lector = timers.rm = timers.cursos = null;
 
   // SIN SESIÓN INICIADA (pantalla de login): no suscribir nada. Las reglas de
@@ -2338,8 +2110,7 @@ function setupGlobalSync() {
 
   // 1) Suscripción en tiempo real a evidencias Lector
   subs.lector = subscribeAllLector((items) => {
-    _todasEvidenciasLector = items || [];
-    filtrarEvidenciasPorCursoActivo();
+    state.evidenciasLector = items || [];
     // Re-renderizar en cualquier vista que muestre datos de Lector
     if (state.user && ["cronograma-lector", "informes", "plan-lector"].includes(state.view.name)) {
       safeRenderMain("lector-snapshot");
@@ -2348,36 +2119,28 @@ function setupGlobalSync() {
 
   // 2) Suscripción en tiempo real a evidencias RM
   subs.rm = subscribeAllRM((items) => {
-    _todasEvidenciasRM = items || [];
-    filtrarEvidenciasPorCursoActivo();
+    state.evidenciasRM = items || [];
     if (state.user && ["curso-rm", "informes", "razonamiento-matematico"].includes(state.view.name)) {
       safeRenderMain("rm-snapshot");
     }
   });
 
-  // 2c) Suscripción en tiempo real a las aportaciones de «Feedback entre compañer@s»
-  // (v2.21). Si el diálogo del feedback está abierto, se refresca su lista en vivo
-  // sin cerrarlo (safeRenderMain no re-renderiza con un diálogo abierto).
-  subs.aportaciones = subscribeAllAportaciones((items) => {
-    _todasAportaciones = items || [];
-    filtrarAportacionesPorCursoActivo();
-    if (state.user && ["recursos-cl", "recursos-rm"].includes(state.view.name)) {
-      safeRenderMain("aportaciones-snapshot");
-    }
-    if (document.getElementById("feedback-dialog") && window._renderFeedbackList) {
-      try { window._renderFeedbackList(); } catch (e) {}
+  // 3) Suscripción en tiempo real a usuarios
+  subs.usuarios = subscribeAllUsuarios((items, err) => {
+    state.usuarios = items || [];
+    state.usuariosError = err || null;
+    if (!err) state.usuariosLastUpdated = Date.now();
+    if (state.user && state.view.name === "gestion-usuarios") {
+      // Solo tabla + contador: reconstruir la vista cerraría el acordeón de importación
+      renderUsuariosDynamic("usuarios-snapshot");
+    } else if (state.user && state.view.name === "informes") {
+      safeRenderMain("usuarios-snapshot");
     }
   });
-
-  // 3) Suscripción en tiempo real a usuarios
-  _crearSubUsuarios("usuarios-snapshot");
 
   // 4) Suscripción en tiempo real a cursos escolares
   subs.cursos = subscribeAllCursos((items) => {
     state.cursos = mergeCursos(items);
-    // Con los cursos ya cargados puede cambiar el curso activo (p. ej. un
-    // forcedCursoId que solo existe en Firestore): re-filtrar las evidencias.
-    filtrarEvidenciasPorCursoActivo();
     if (state.user && ["cursos-escolares", "informes", "cronograma-lector", "curso-rm"].includes(state.view.name)) {
       safeRenderMain("cursos-snapshot");
     }
@@ -2410,10 +2173,6 @@ function setupGlobalSync() {
     subs.ownProfile = subscribeOwnProfile(state.user.uid, (profile, err) => {
       if (profile) {
         state.userProfile = profile;
-        // Si se registró un aviso de reglas ANTES de cargar el perfil (la
-        // denegación puede llegar antes que el perfil), reintentar ahora que ya
-        // se conoce el rol.
-        _mostrarAvisoReglasSiToca();
         safeRenderMain("own-profile-snapshot");
       } else if (!err && state.user && state.userProfile && !state.userProfile._synthetic) {
         // El perfil existía (se cargó de Firestore) y ha DEJADO de existir: alguien
@@ -2451,9 +2210,6 @@ function setupGlobalSync() {
 // Handler de visibility change (definido fuera para poder quitarlo si hace falta)
 function handleVisibilityChange() {
   if (document.visibilityState === "visible" && state.user) {
-    // Si había un aviso de reglas pintado, comprobar en segundo plano si las
-    // reglas ya se publicaron (p. ej. el admin las acaba de publicar en otra pestaña)
-    _sondearReglasSiBanner();
     // La pestaña acaba de volver a estar visible: refrescar todo
     refreshEvidenciasNow("all");
     if (isAdmin()) refreshUsuariosNow();
@@ -2466,19 +2222,22 @@ function handleVisibilityChange() {
       try { subs.usuarios && subs.usuarios(); } catch (e) {}
       try { subs.cursos && subs.cursos(); } catch (e) {}
       subs.lector = subscribeAllLector((items) => {
-        _todasEvidenciasLector = items || [];
-        filtrarEvidenciasPorCursoActivo();
+        state.evidenciasLector = items || [];
         if (state.user && ["cronograma-lector", "informes", "plan-lector"].includes(state.view.name)) safeRenderMain("lector-resubscribe");
       });
       subs.rm = subscribeAllRM((items) => {
-        _todasEvidenciasRM = items || [];
-        filtrarEvidenciasPorCursoActivo();
+        state.evidenciasRM = items || [];
         if (state.user && ["curso-rm", "informes", "razonamiento-matematico"].includes(state.view.name)) safeRenderMain("rm-resubscribe");
       });
-      _crearSubUsuarios("usuarios-resubscribe");
+      subs.usuarios = subscribeAllUsuarios((items, err) => {
+        state.usuarios = items || [];
+        state.usuariosError = err || null;
+        if (!err) state.usuariosLastUpdated = Date.now();
+        if (state.user && state.view.name === "gestion-usuarios") renderUsuariosDynamic("usuarios-resubscribe");
+        else if (state.user && state.view.name === "informes") safeRenderMain("usuarios-resubscribe");
+      });
       subs.cursos = subscribeAllCursos((items) => {
         state.cursos = mergeCursos(items);
-        filtrarEvidenciasPorCursoActivo();
         if (state.user && ["cursos-escolares", "informes", "cronograma-lector", "curso-rm"].includes(state.view.name)) safeRenderMain("cursos-resubscribe");
       });
       subs._lastResubscribe = Date.now();
@@ -2660,9 +2419,8 @@ function renderLogin() {
           </div>
         </div>
 
-        <p class="text-xs text-slate-500 text-center mt-4 px-2">Entra con tu usuario IdEA como usuario y también como contraseña. Tras el primer acceso, puedes cambiar la contraseña si lo deseas.</p>
-        <p class="text-xs text-slate-500 text-center mt-1 px-2">Las evidencias se asocian con tu cuenta.</p>
-        <p class="text-[10px] text-slate-400 text-center mt-1">Gestión de usuarios v${APP_VERSION}</p>
+        <p class="text-xs text-slate-500 text-center mt-4 px-2">Entra con tu usuario y contraseña. Las evidencias se asocian a tu cuenta.</p>
+        <p class="text-[10px] text-slate-400 text-center mt-1">Gestión de usuarios v${APP_VERSION} · sin correos electrónicos</p>
       </div>
     </div>`;
 
@@ -3289,15 +3047,19 @@ function viewPlanLectorHome() {
         </button>
         ${state.showHelp["plan-lector"] ? `
           <div class="mt-4 space-y-2 text-sm text-slate-700">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Flujo de trabajo</p>
             <ul class="list-disc pl-5 space-y-1.5">
-              <li>Entra con tu <strong>usuario IdEA</strong> (la contraseña inicial es el propio usuario; puedes cambiarla en <strong>Mi perfil</strong>). Todo lo que registres queda <strong>asociado a tu cuenta</strong> y al <strong>curso escolar activo</strong>.</li>
-              <li>Abre el <strong>Cronograma del Plan</strong>: el plan tiene <strong>${evalsPlan.length} evaluaciones</strong>, de ${evaluacionesWeeksText(evalsPlan)} semanas de duración, para un total de ${totalSemanasPlan} semanas. Las evaluaciones empiezan plegadas: pulsa su <strong>cabecera</strong> para desplegarla o plegarla.</li>
-              <li>La primera columna de cada semana indica la <strong>hora de lectura</strong> (rotación cada seis semanas: 1ª, 2ª, 3ª, 4ª, 5ª, 6ª hora). El resto de celdas son las sesiones de lunes a viernes.</li>
-              <li>Para <strong>registrar una evidencia</strong>: pulsa la celda del día y elige tu <strong>grupo</strong> en el menú (los grupos en verde ya tienen evidencia y muestran quién la registró). El formulario trae tu nombre ya relleno: elige la <strong>tipología textual</strong>, el <strong>tipo de texto</strong> (el listado depende de la tipología) y añade <strong>observaciones</strong> si quieres. Guarda con «Registrar».</li>
-              <li>La celda queda <span class="text-emerald-600 font-semibold">verde</span> con una ficha por grupo: <strong>✓</strong> es tuya y puedes <strong>editarla o eliminarla</strong> desde ella; <strong>🔒</strong> es de otro compañero/a y se consulta en modo solo lectura.</li>
-              <li>Todo se guarda en <strong>Firebase</strong> al momento y es visible para todo el profesorado. Solo el <strong>autor</strong> de la evidencia o un <strong>administrador</strong> pueden modificarla o borrarla: respeta lo que han registrado tus compañer@s. Si algo no funciona, comunícalo al Equipo Directivo.</li>
+              <li>El cronograma está organizado en <strong>${evalsPlan.length} evaluaciones</strong>, de ${evaluacionesWeeksText(evalsPlan)} semanas de duración, para un total de ${totalSemanasPlan} semanas.</li>
+              <li>Puedes <strong>ocultar o mostrar</strong> una evaluación con los botones "+" y "−" de la parte superior derecha de cada una.</li>
+              <li>La primera columna indica la <strong>hora de lectura</strong> de esa semana. Hay rotación cada seis semanas (1ª, 2ª, 3ª, 4ª, 5ª, 6ª hora).</li>
+              <li>El resto de celdas indican la sesión de trabajo (lunes a viernes). Pulsa sobre la celda y elige tu <strong>grupo</strong> en el menú contextual.</li>
+              <li>La celda se pondrá verde y aparecerá el botón <strong>"Registrar evidencia"</strong>. Al pulsarlo, abre el formulario para rellenar: nombre, tipología textual y tipo de texto.</li>
+              <li>Las evidencias se guardan en <strong>Firebase</strong> y pueden ser <strong>editadas o eliminadas</strong> por cada profesor/a en cualquier momento.</li>
+              <li>Si hay algo registrado, ten cuidado. Respeta lo que tus compañer@s han hecho. Si algo no funciona, comunícalo al Equipo Directivo.</li>
             </ul>
+            <a href="${ENLACES_NORMATIVA.instruccionesCL}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 underline mt-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Ver instrucciones oficiales (Junta de Andalucía)
+            </a>
           </div>
         ` : ""}
       </div>
@@ -3355,12 +3117,12 @@ function viewCronogramaLector() {
           <div class="mt-4 text-left bg-yellow-50 text-slate-800 rounded-lg p-4 text-sm space-y-2">
             <p class="font-bold">Cómo usar el cronograma</p>
             <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
-              <li>${EVALS.length} evaluaciones (${evaluacionesWeeksText(EVALS)} semanas). Total: ${EVALS.reduce((a, e) => a + (parseInt(e.weeks, 10) || 0), 0)} semanas. Pulsa la <strong>cabecera</strong> de cada evaluación para <strong>desplegarla o plegarla</strong>.</li>
+              <li>${EVALS.length} evaluaciones (${evaluacionesWeeksText(EVALS)} semanas). Total: ${EVALS.reduce((a, e) => a + (parseInt(e.weeks, 10) || 0), 0)} semanas.</li>
               <li>La 1ª columna indica la <strong>hora de lectura</strong> de esa semana (rotación cada 6 semanas).</li>
-              <li>Pulsa la <strong>celda del día</strong> y elige tu <strong>grupo</strong> en el menú (verde = ya tiene evidencia, con el nombre de quien la registró).</li>
-              <li>Rellena el formulario: nombre (ya relleno con el de tu cuenta), <strong>tipología textual</strong> y <strong>tipo de texto</strong>; observaciones opcional. Guarda con «Registrar».</li>
-              <li>La celda queda <span class="text-emerald-600 font-semibold">verde</span>: <strong>✓ grupo</strong> = tuya (puedes editarla o eliminarla); <strong>🔒 grupo</strong> = de otro (solo lectura). Solo el autor o un administrador puede modificarla.</li>
-              <li>Todo se guarda al momento en Firebase, asociado a tu cuenta y al curso escolar activo.</li>
+              <li>Pulsa sobre una celda del día y elige tu <strong>grupo</strong> en el menú.</li>
+              <li>La celda se pondrá <span class="text-emerald-600 font-semibold">verde</span> y aparecerá el botón "Registrar evidencia".</li>
+              <li>Rellena: nombre, tipología textual y tipo de texto (opcional: observación).</li>
+              <li>Las evidencias se guardan en Firebase y pueden editarse o eliminarse en cualquier momento.</li>
             </ul>
           </div>
         ` : ""}
@@ -3651,287 +3413,9 @@ window._deleteEvLector = async () => {
 };
 
 // -----------------------------------------------------------------------------
-// 12b. FEEDBACK ENTRE COMPAÑER@S (aportaciones, v2.21)
-// -----------------------------------------------------------------------------
-// Sustituye a las hojas de cálculo: cada tarjeta «Feedback entre compañer@s»
-// abre este diálogo con el tipo de actividad premarcado según el plan de
-// origen (rm = Razonamiento Matemático, lectura = Plan Lector). La pestaña
-// «Consultar» muestra las aportaciones del ámbito y del curso escolar activo;
-// solo el autor o un administrador pueden editarlas o eliminarlas.
-let _currentFeedback = null; // { tipo, mode: "form"|"list", editId }
-
-function _feedbackSubtitulo(tipo) {
-  return tipo === "rm"
-    ? "Plan de Razonamiento Matemático"
-    : "Plan Lector · Refuerzo de la Competencia Lingüística";
-}
-
-function _feedbackAutorNombre() {
-  return state.userProfile?.displayName || state.user?.displayName || state.userProfile?.username || "";
-}
-
-function openFeedbackDialog(opts = {}) {
-  _currentFeedback = { tipo: opts.tipo === "rm" ? "rm" : "lectura", mode: opts.mode === "list" ? "list" : "form", editId: opts.editId || null };
-  const overlay = document.createElement("div");
-  overlay.id = "feedback-dialog";
-  overlay.className = "fixed inset-0 z-50 flex items-center justify-center p-3";
-  overlay.innerHTML = `
-    <div class="absolute inset-0 dialog-overlay" data-action="close-feedback"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto fade-in">
-      <div id="fb-header"></div>
-      <div id="fb-body"></div>
-    </div>`;
-  document.body.appendChild(overlay);
-  _renderFeedbackHeader();
-  if (_currentFeedback.mode === "form") _renderFeedbackForm();
-  else _renderFeedbackList();
-}
-
-function _renderFeedbackHeader() {
-  const header = document.getElementById("fb-header");
-  if (!header || !_currentFeedback) return;
-  const tabBase = "px-3 py-2 text-sm font-medium rounded-lg transition flex items-center gap-1.5";
-  const tabOn = "bg-blue-50 text-blue-700 border border-blue-200";
-  const tabOff = "text-slate-600 hover:bg-slate-100 border border-transparent";
-  const n = state.feedback.filter(a => a.tipo === _currentFeedback.tipo).length;
-  header.innerHTML = `
-    <div class="p-5 pb-3 border-b border-slate-200">
-      <div class="flex items-start justify-between gap-2">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-            Feedback entre compañer@s
-          </h2>
-          <p class="text-sm text-slate-500 mt-1">${_feedbackSubtitulo(_currentFeedback.tipo)} · curso ${cursoEscolarActivo()}</p>
-        </div>
-        <button data-action="close-feedback" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100" title="Cerrar">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="flex gap-2 mt-4">
-        <button data-action="fb-mode-form" class="${tabBase} ${_currentFeedback.mode === "form" ? tabOn : tabOff}">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Añadir aportación
-        </button>
-        <button data-action="fb-mode-list" class="${tabBase} ${_currentFeedback.mode === "list" ? tabOn : tabOff}">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          Consultar (${n})
-        </button>
-      </div>
-    </div>`;
-}
-
-function _renderFeedbackForm() {
-  const body = document.getElementById("fb-body");
-  if (!body || !_currentFeedback) return;
-  _currentFeedback.mode = "form";
-  _renderFeedbackHeader();
-  const existing = _currentFeedback.editId ? state.feedback.find(a => a.id === _currentFeedback.editId) : null;
-  const tipo = existing?.tipo || _currentFeedback.tipo;
-  const tituloVal = existing?.titulo || "";
-  const descVal = existing?.descripcion || "";
-  const urlVal = existing?.url || "";
-  const esc = (s) => String(s).replace(/"/g, "&quot;");
-  body.innerHTML = `
-    <div class="p-5 space-y-3">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Tipo de actividad *</label>
-        <div class="grid gap-2 sm:grid-cols-2">
-          <label class="flex items-center gap-2 p-3 rounded-lg border border-slate-300 cursor-pointer hover:bg-blue-50/40 ${tipo === "rm" ? "border-blue-300 bg-blue-50/60" : ""}">
-            <input id="fb-tipo-rm" type="checkbox" ${tipo === "rm" ? "checked" : ""} class="w-4 h-4 accent-blue-600" />
-            <span class="text-sm text-slate-700">${FEEDBACK_TIPOS.rm}</span>
-          </label>
-          <label class="flex items-center gap-2 p-3 rounded-lg border border-slate-300 cursor-pointer hover:bg-blue-50/40 ${tipo === "lectura" ? "border-blue-300 bg-blue-50/60" : ""}">
-            <input id="fb-tipo-lectura" type="checkbox" ${tipo === "lectura" ? "checked" : ""} class="w-4 h-4 accent-blue-600" />
-            <span class="text-sm text-slate-700">${FEEDBACK_TIPOS.lectura}</span>
-          </label>
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Autor/a</label>
-        <input id="fb-autor" type="text" value="${esc(_feedbackAutorNombre())}" disabled class="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 outline-none" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Título de la actividad *</label>
-        <input id="fb-titulo" type="text" value="${esc(tituloVal)}" maxlength="120" placeholder="Título breve que identifique la actividad" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Descripción *</label>
-        <input id="fb-descripcion" type="text" value="${esc(descVal)}" maxlength="400" placeholder="En qué consiste, cómo aplicarla, materiales…" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">URL (opcional)</label>
-        <input id="fb-url" type="text" value="${esc(urlVal)}" placeholder="https://… enlace al recurso" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
-      </div>
-      <div id="fb-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
-    </div>
-    <div class="p-5 border-t border-slate-200 flex flex-wrap gap-2">
-      <button data-action="close-feedback" class="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-medium">Cancelar</button>
-      <button data-action="save-feedback" id="fb-save" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-medium">${existing ? "Guardar cambios" : "Registrar aportación"}</button>
-    </div>`;
-
-  // Exclusión mutua: siempre exactamente un tipo marcado (el otro se desmarca;
-  // no se permite dejar los dos sin marcar).
-  const chRM = document.getElementById("fb-tipo-rm");
-  const chLect = document.getElementById("fb-tipo-lectura");
-  const exclusivo = (keep, other) => {
-    if (keep.checked) { other.checked = false; }
-    else if (!other.checked) { keep.checked = true; } // nunca dejar los dos sin marcar
-    // Reaccionar al clic del otro checkbox: si se marca, desmarcar este
-    other.onchange = () => {
-      if (other.checked) { keep.checked = false; }
-      else if (!keep.checked) { other.checked = true; }
-      _fbRefrescarResaltadoTipo();
-    };
-    keep.onchange = () => {
-      if (keep.checked) { other.checked = false; }
-      else if (!other.checked) { keep.checked = true; }
-      _fbRefrescarResaltadoTipo();
-    };
-  };
-  exclusivo(chRM, chLect);
-}
-
-function _fbRefrescarResaltadoTipo() {
-  const chRM = document.getElementById("fb-tipo-rm");
-  const chLect = document.getElementById("fb-tipo-lectura");
-  if (!chRM || !chLect) return;
-  chRM.closest("label").classList.toggle("border-blue-300", chRM.checked);
-  chRM.closest("label").classList.toggle("bg-blue-50/60", chRM.checked);
-  chLect.closest("label").classList.toggle("border-blue-300", chLect.checked);
-  chLect.closest("label").classList.toggle("bg-blue-50/60", chLect.checked);
-}
-
-// Lista de aportaciones del ámbito y curso activo. Se re-pinta sola cuando la
-// suscripción a «aportaciones» recibe cambios con el diálogo abierto.
-window._renderFeedbackList = () => {
-  const body = document.getElementById("fb-body");
-  if (!body || !_currentFeedback) return;
-  _currentFeedback.mode = "list";
-  _renderFeedbackHeader();
-  const tipo = _currentFeedback.tipo;
-  const items = state.feedback.filter(a => a.tipo === tipo).slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  body.innerHTML = `
-    <div class="p-5 space-y-3">
-      ${items.length === 0 ? `
-        <div class="text-center py-8 text-slate-500 text-sm">
-          <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-          Todavía no hay aportaciones de este ámbito en el curso ${cursoEscolarActivo()}.<br/>¡Estrena la primera con «Añadir aportación»!
-        </div>
-      ` : items.map(a => {
-        const editable = canEditAportacion(a);
-        const fecha = a.createdAt ? formatDateES(new Date(a.createdAt)) : "";
-        const url = typeof a.url === "string" && /^https?:\/\//i.test(a.url.trim()) ? a.url.trim() : "";
-        return `
-        <div class="rounded-xl border border-slate-200 p-4">
-          <div class="flex items-start justify-between gap-2">
-            <h3 class="font-bold text-slate-800 text-sm">${escapeHtml(a.titulo || "(sin título)")}</h3>
-            ${editable ? "" : `<span class="shrink-0 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Solo lectura</span>`}
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(a.autorNombre || "Profesor/a")}${fecha ? " · " + fecha : ""}</p>
-          <p class="text-sm text-slate-600 mt-2 break-words">${escapeHtml(a.descripcion || "")}</p>
-          ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 underline mt-2">Abrir recurso →</a>` : ""}
-          ${editable ? `
-          <div class="flex gap-2 mt-3 pt-3 border-t border-slate-100">
-            <button data-action="fb-edit" data-id="${a.id}" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium">Editar</button>
-            <button data-action="fb-delete" data-id="${a.id}" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 text-xs font-medium">Eliminar</button>
-          </div>` : ""}
-        </div>`;
-      }).join("")}
-    </div>
-    <div class="p-5 border-t border-slate-200 flex flex-wrap gap-2">
-      <button data-action="fb-add" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-medium flex items-center gap-1.5">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Añadir aportación
-      </button>
-    </div>`;
-};
-
-window._closeFeedbackDialog = () => {
-  document.getElementById("feedback-dialog")?.remove();
-  _currentFeedback = null;
-};
-
-window._openFeedback = (tipo) => {
-  openFeedbackDialog({ tipo: tipo === "rm" ? "rm" : "lectura", mode: "form" });
-};
-
-window._feedbackMode = (mode) => {
-  if (!_currentFeedback) return;
-  if (mode === "list") _renderFeedbackList();
-  else { _currentFeedback.editId = null; _renderFeedbackForm(); }
-};
-
-window._editAportacion = (id) => {
-  const a = state.feedback.find(x => x.id === id);
-  if (!a) return;
-  if (!canEditAportacion(a)) {
-    alert("No tienes permiso para editar esta aportación. Solo el profesor que la registró o un administrador pueden hacerlo.");
-    return;
-  }
-  _currentFeedback.editId = id;
-  _currentFeedback.tipo = a.tipo === "rm" ? "rm" : "lectura";
-  _renderFeedbackForm();
-};
-
-window._saveFeedback = async () => {
-  if (!_currentFeedback) return;
-  const chRM = document.getElementById("fb-tipo-rm");
-  const chLect = document.getElementById("fb-tipo-lectura");
-  const titulo = document.getElementById("fb-titulo").value.trim();
-  const descripcion = document.getElementById("fb-descripcion").value.trim();
-  const url = document.getElementById("fb-url").value.trim();
-  const tipo = chRM.checked ? "rm" : (chLect.checked ? "lectura" : "");
-  const err = document.getElementById("fb-error");
-  err.classList.add("hidden");
-
-  if (!tipo) { err.textContent = "Marca el tipo de actividad."; err.classList.remove("hidden"); return; }
-  if (!titulo) { err.textContent = "Escribe el título de la actividad."; err.classList.remove("hidden"); return; }
-  if (!descripcion) { err.textContent = "Escribe una descripción de la actividad."; err.classList.remove("hidden"); return; }
-  if (url && !/^https?:\/\//i.test(url)) { err.textContent = "La URL debe empezar por http:// o https:// (o déjala vacía)."; err.classList.remove("hidden"); return; }
-
-  const btn = document.getElementById("fb-save");
-  btn.disabled = true;
-  btn.textContent = "Guardando…";
-  try {
-    if (_currentFeedback.editId) {
-      await updateAportacion(_currentFeedback.editId, { tipo, titulo, descripcion, url });
-    } else {
-      await addAportacion({ tipo, titulo, descripcion, url });
-    }
-    window._closeFeedbackDialog();
-  } catch (e) {
-    console.error(e);
-    err.textContent = "Error al guardar. Inténtalo de nuevo.";
-    err.classList.remove("hidden");
-    btn.disabled = false;
-    btn.textContent = _currentFeedback.editId ? "Guardar cambios" : "Registrar aportación";
-  }
-};
-
-window._deleteAportacion = async (id) => {
-  const a = state.feedback.find(x => x.id === id);
-  if (!a) return;
-  if (!canEditAportacion(a)) {
-    alert("No tienes permiso para eliminar esta aportación. Solo el profesor que la registró o un administrador pueden hacerlo.");
-    return;
-  }
-  if (!confirm("¿Seguro que deseas eliminar esta aportación? Esta acción no se puede deshacer.")) return;
-  try {
-    await deleteAportacion(id);
-    if (document.getElementById("feedback-dialog")) window._renderFeedbackList();
-  } catch (e) {
-    console.error(e);
-    alert("Error al eliminar.");
-  }
-};
-
-// -----------------------------------------------------------------------------
 // 13. VIEW: RECURSOS CL
 // -----------------------------------------------------------------------------
 function viewRecursosCL() {
-  const col = (i) => tarjetaRecursoColor(TARJETAS_RECURSOS_CL, i);
-  const cFB = col(ENLACES_RECURSOS_CL.length);
   return `
     <div class="space-y-5">
       <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg p-5 sm:p-7 flex items-center gap-4">
@@ -3944,17 +3428,21 @@ function viewRecursosCL() {
         </div>
       </div>
       <div class="grid gap-4 sm:grid-cols-2">
-        ${ENLACES_RECURSOS_CL.map((r, i) => `
-          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl ${col(i).fondo} border border-slate-200 border-l-4 ${col(i).bordeL} ${col(i).hoverBorde} hover:shadow-lg transition">
-            <h3 class="font-bold text-slate-800 ${col(i).hoverTitulo} flex items-center gap-1">${r.titulo} →</h3>
+        ${ENLACES_RECURSOS_CL.map(r => `
+          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 hover:shadow-lg transition">
+            <h3 class="font-bold text-slate-800 group-hover:text-blue-700 flex items-center gap-1">${r.titulo} →</h3>
             <p class="text-sm text-slate-600 mt-1">${r.descripcion}</p>
           </a>
         `).join("")}
-        <button data-action="open-feedback" data-tipo="lectura" class="group block w-full text-left p-5 rounded-xl ${cFB.fondo} border border-slate-200 border-l-4 ${cFB.bordeL} ${cFB.hoverBorde} hover:shadow-lg transition">
-          <h3 class="font-bold text-slate-800 ${cFB.hoverTitulo} flex items-center gap-1">Feedback entre compañer@s →</h3>
-          <p class="text-sm text-slate-600 mt-1">Comparte con el profesorado actividades, experiencias y recursos del Plan Lector y consulta lo aportado por tus compañer@s.</p>
-          <p class="text-xs text-slate-400 mt-2">${state.feedback.filter(a => a.tipo === "lectura").length} aportación(es) · curso ${cursoEscolarActivo()}</p>
-        </button>
+      </div>
+      <div class="bg-yellow-50/50 border border-slate-200 rounded-xl p-5">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm">Añadir contenido</h3>
+            <p class="text-xs text-slate-600 mt-1">Si tienes recursos o materiales que quieras compartir con el resto del profesorado, comunícalo al Equipo Directivo para incluirlos en esta sección.</p>
+          </div>
+        </div>
       </div>
     </div>`;
 }
@@ -3982,13 +3470,14 @@ function viewRMHome() {
           <div class="mt-4 text-left bg-yellow-50 text-slate-800 rounded-lg p-4 text-sm space-y-2">
             <p class="font-bold">Cómo usar esta sección</p>
             <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
-              <li>Elige el <strong>curso</strong> con el que vas a trabajar: cada botón abre su cronograma (<strong>${evalsRM.length} evaluaciones</strong>, ${evaluacionesWeeksText(evalsRM)} semanas). Empiezan plegadas: pulsa la <strong>cabecera</strong> para desplegarlas o plegarlas.</li>
-              <li>Cada semana tiene <strong>tres sesiones</strong>: 1ª <strong>Matemáticas</strong>, 2ª rotación de materias del ámbito <strong>CT</strong> y 3ª del ámbito <strong>SL/AR</strong>. Bajo cada sesión verás la <strong>actividad sugerida</strong> (no prescriptiva) y el <strong>código de criterio de evaluación</strong>.</li>
-              <li>Con los filtros de la parte superior puedes mostrar <strong>una única asignatura</strong>, todas las de un <strong>ámbito</strong> (CT, SL, AR) o volver a «↺ Mostrar todo».</li>
-              <li>Para <strong>registrar la evidencia</strong>: pulsa el botón <strong>+ Grupo</strong> que hay bajo la actividad. El formulario trae tu nombre ya relleno: describe la <strong>actividad realizada</strong> (puedes partir de la sugerencia y ajustarla) y añade <strong>observaciones</strong> si quieres. Guarda con «Registrar».</li>
-              <li>Cuando una sesión tiene registro, su grupo aparece como ficha verde: <strong>✓</strong> es tuya (puedes editarla o eliminarla); <strong>🔒</strong> es de otro compañero/a (solo lectura). Solo el autor o un administrador puede modificarla.</li>
-              <li>El botón <strong>Informes</strong> muestra un resumen del curso y, cuando hay evidencias, el <strong>gráfico de distribución</strong> por asignatura.</li>
-              <li>Todo se guarda en <strong>Firebase</strong> al momento, asociado a tu cuenta y al <strong>curso escolar activo</strong>.</li>
+              <li>Elige el <strong>curso</strong> con el que vas a trabajar haciendo clic sobre el correspondiente botón.</li>
+              <li>La aplicación está organizada en <strong>${evalsRM.length} evaluaciones</strong> (${evaluacionesWeeksText(evalsRM)} semanas).</li>
+              <li>La <strong>primera evaluación</strong> aparece desplegada por defecto. Puedes <strong>ocultar</strong> una evaluación con "−" y <strong>mostrar</strong> con "+".</li>
+              <li>Cada semana contiene <strong>tres sesiones</strong> de trabajo, asignadas a tres materias.</li>
+              <li>Bajo cada materia, verás una <strong>sugerencia de actividad</strong> (no es prescriptiva) y el <strong>código de criterio de evaluación</strong>.</li>
+              <li>Con los botones de la parte superior, puedes <strong>filtrar por una única materia</strong> o por <strong>todas las materias de un ámbito</strong> (CT, SL, AR).</li>
+              <li>Para <strong>registrar la evidencia</strong>: pulsa el botón del <strong>grupo</strong> que hay bajo la actividad. Se abrirá un formulario para rellenar: tu nombre, la actividad realizada y opcionalmente una observación.</li>
+              <li>Las evidencias se guardan en <strong>Firebase</strong> y pueden editarse o eliminarse en cualquier momento.</li>
             </ul>
           </div>
         ` : ""}
@@ -4596,8 +4085,6 @@ window._deleteEvRM = async () => {
 // 19. VIEW: RECURSOS RM
 // -----------------------------------------------------------------------------
 function viewRecursosRM() {
-  const col = (i) => tarjetaRecursoColor(TARJETAS_RECURSOS_RM, i);
-  const cFB = col(ENLACES_RECURSOS_RM.length);
   return `
     <div class="space-y-5">
       <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-indigo-600 text-white shadow-lg p-5 sm:p-7 flex items-center gap-4">
@@ -4610,17 +4097,21 @@ function viewRecursosRM() {
         </div>
       </div>
       <div class="grid gap-4 sm:grid-cols-2">
-        ${ENLACES_RECURSOS_RM.map((r, i) => `
-          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl ${col(i).fondo} border border-slate-200 border-l-4 ${col(i).bordeL} ${col(i).hoverBorde} hover:shadow-lg transition">
-            <h3 class="font-bold text-slate-800 ${col(i).hoverTitulo} flex items-center gap-1">${r.titulo} →</h3>
+        ${ENLACES_RECURSOS_RM.map(r => `
+          <a href="${r.url}" target="_blank" rel="noopener" class="group block p-5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition">
+            <h3 class="font-bold text-slate-800 group-hover:text-emerald-700 flex items-center gap-1">${r.titulo} →</h3>
             <p class="text-sm text-slate-600 mt-1">${r.descripcion}</p>
           </a>
         `).join("")}
-        <button data-action="open-feedback" data-tipo="rm" class="group block w-full text-left p-5 rounded-xl ${cFB.fondo} border border-slate-200 border-l-4 ${cFB.bordeL} ${cFB.hoverBorde} hover:shadow-lg transition">
-          <h3 class="font-bold text-slate-800 ${cFB.hoverTitulo} flex items-center gap-1">Feedback entre compañer@s →</h3>
-          <p class="text-sm text-slate-600 mt-1">Comparte con el profesorado actividades, experiencias y recursos del Plan de Razonamiento Matemático y consulta lo aportado por tus compañer@s.</p>
-          <p class="text-xs text-slate-400 mt-2">${state.feedback.filter(a => a.tipo === "rm").length} aportación(es) · curso ${cursoEscolarActivo()}</p>
-        </button>
+      </div>
+      <div class="bg-yellow-50/50 border border-slate-200 rounded-xl p-5">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm">Añadir contenido</h3>
+            <p class="text-xs text-slate-600 mt-1">Si tienes recursos, materiales o propuestas didácticas para el plan de razonamiento matemático, comunícalo al Equipo Directivo para incluirlos en esta sección.</p>
+          </div>
+        </div>
       </div>
     </div>`;
 }
@@ -4855,7 +4346,7 @@ function viewInformes() {
               <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Informes de uso
             </h1>
-            <p class="text-sm text-white/85 mt-1">Genera informes en PDF del uso de los Planes Lector y de Razonamiento Matemático · curso ${escapeHtml(curso.label || curso.id || "")}</p>
+            <p class="text-sm text-white/85 mt-1">Genera informes en PDF del uso de los Planes Lector y de Razonamiento Matemático</p>
             <p class="text-xs text-white/70 mt-1">Curso actual: ${curso.label || curso.id} · ${formatDateES(new Date(curso.start))} → ${formatDateES(new Date(curso.end))}</p>
           </div>
         </div>
@@ -5555,12 +5046,6 @@ service cloud.firestore {
     }
     // Evidencias Plan RM
     match /evidencias_rm/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    // Aportaciones «Feedback entre compañer@s» (v2.21): cualquier profesor
-    // autenticado puede leer y registrar; editar/borrar está limitado en la
-    // aplicación al autor de la aportación y a los administradores.
-    match /aportaciones/{docId} {
       allow read, write: if request.auth != null;
     }
     // Cursos escolares
@@ -6819,10 +6304,8 @@ window._openDeleteUsuarioDialog = (uid, nombre, email, username) => {
   const adminsRestantes = state.usuarios.filter(x => esUsuarioAdmin(x) && (x.uid || x.id) !== uid).length;
   const quedaraSinAdmins = isAdminU && adminsRestantes === 0;
   // Contar evidencias del usuario para mostrar en la confirmación
-  // Recuento sobre TODAS las evidencias del usuario (el borrado afecta a todos
-  // los cursos escolares, no solo al activo)
-  const evidenciasLector = _todasEvidenciasLector.filter(e => e.createdBy === uid).length;
-  const evidenciasRM = _todasEvidenciasRM.filter(e => e.createdBy === uid).length;
+  const evidenciasLector = state.evidenciasLector.filter(e => e.createdBy === uid).length;
+  const evidenciasRM = state.evidenciasRM.filter(e => e.createdBy === uid).length;
 
   const overlay = document.createElement("div");
   overlay.id = "delete-user-dialog";
@@ -7058,9 +6541,8 @@ window._openBulkDeleteDialog = () => {
   const adminsActuales = state.usuarios.filter(esUsuarioAdmin).map((u) => u.uid || u.id);
   const quedaraSinAdmins = adminsActuales.length > 0 && adminsActuales.every((uid) => state.bulkSel.has(uid));
   const incluyeSelf = !!state.user?.uid && state.bulkSel.has(state.user.uid);
-  // Recuento sobre TODAS las evidencias (el borrado afecta a todos los cursos escolares)
-  const evLector = sel.reduce((a, u) => a + _todasEvidenciasLector.filter((e) => e.createdBy === (u.uid || u.id)).length, 0);
-  const evRM = sel.reduce((a, u) => a + _todasEvidenciasRM.filter((e) => e.createdBy === (u.uid || u.id)).length, 0);
+  const evLector = sel.reduce((a, u) => a + state.evidenciasLector.filter((e) => e.createdBy === (u.uid || u.id)).length, 0);
+  const evRM = sel.reduce((a, u) => a + state.evidenciasRM.filter((e) => e.createdBy === (u.uid || u.id)).length, 0);
 
   const lista = sel.slice().sort(_compareUsuariosPorApellidos).map((u) => {
     const uid = u.uid || u.id;
@@ -7402,8 +6884,6 @@ window._setCursoActivo = (cursoId) => {
     state.forcedCursoId = cursoId;
     try { localStorage.setItem("forcedCursoId", cursoId); } catch (e) {}
   }
-  // Re-filtrar las evidencias para mostrar solo las del curso activo elegido
-  filtrarEvidenciasPorCursoActivo();
   // Forzar re-render completo de la shell
   // Usar setTimeout(0) para asegurar que el state se actualiza antes del render
   setTimeout(() => {
@@ -7983,22 +7463,6 @@ onAuthStateChanged(auth, async (user) => {
   state.user = localUser;
   window._sesionHuerfanaGestionada = false;
   if (localUser) {
-    // v2.17: tras el login (venga o no de un logout) la app SIEMPRE comienza en
-    // «Inicio». Antes, state.view conservaba la última vista de la sesión anterior
-    // (del usuario que cerró sesión, que puede ser otro distinto): quien salió
-    // estando en Informes o en un curso volvía a entrar directamente ahí, y si el
-    // usuario nuevo no es admin caía en «Acceso restringido». Se resetean también
-    // los estados efímeros de vista (el mismo reset que hace _go) y el modo de
-    // borrado masivo, para que cada sesión empiece limpia.
-    state.view = { name: "home" };
-    state.openEvals = new Set();
-    state.filter = { type: "all", value: "" };
-    state.showReports = false;
-    state.showHelp = {};
-    state.bulkDeleteMode = false;
-    state.bulkSel = new Set();
-    state.informeConfig = { period: "semanal" };
-    try { window.scrollTo(0, 0); } catch (e) { /* sin scroll disponible */ }
     try {
       const profile = await ensureUserProfile(localUser);
       // Verificar que el usuario no haya cambiado durante el await
