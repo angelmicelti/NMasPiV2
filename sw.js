@@ -13,7 +13,7 @@
 // APP_VERSION de nmaspi.html. La activación borra las cachés antiguas y
 // skipWaiting()+clients.claim() ponen la versión nueva en marcha al momento.
 
-const CACHE_NAME = 'nmaspi-v2.25';
+const CACHE_NAME = 'nmaspi-v2.26';
 const STATIC_ASSETS = [
   './nmaspi.html',
 ];
