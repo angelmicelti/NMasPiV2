@@ -61,6 +61,9 @@
   .acc-chevron { transition: transform 0.2s; }
   /* Dialog overlay */
   .dialog-overlay { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); }
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   /* Celdas del cronograma lector con evidencia */
   .cell-has-evidence { background-color: #ecfdf5; border-color: #34d399; }
   .cell-has-evidence:hover { background-color: #d1fae5; }
@@ -406,7 +409,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.30";
+const APP_VERSION = "2.22";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -648,26 +651,9 @@ function getActividadLenguaRM(cursoId, weekNum) {
   return actividades[idx];
 }
 
-// Enlaces oficiales de la Junta de Andalucía (v2.25): los antiguos apuntaban a
-// páginas de portal que quedaron rotas; ahora son los documentos PDF directos
-// publicados en el portal de Educación (verificados en funcionamiento).
 const ENLACES_NORMATIVA = {
-  // Instrucciones de 21 de junio de 2023 (lectura diaria planificada) — PDF
-  instruccionesCL: "https://www.juntadeandalucia.es/educacion/portales/documents/270701/427214/INSTRUCCIONES%20DE%20LECTURA%20DIARIA%20PLANIFICADA%20(1).pdf/2adf87df-c6c2-c3eb-25b6-ac2d8a6306d4?version=1.0",
-  // Instrucciones para el fomento del razonamiento matemático — PDF
-  instruccionesRM: "https://www.juntadeandalucia.es/educacion/portales/documents/270701/910112/Instrucciones%20razonamiento%20matem%C3%A1tico%20VC(F).pdf/c640cd5b-a9d9-5f11-a0bc-b1f362c31dd0?version=1.2",
-};
-// Guía interactiva (HTML) del refuerzo de la competencia matemática — Junta de Andalucía
-const ENLACE_GUIA_MATEMATICAS_HTML = "https://www.juntadeandalucia.es/educacion/descargas/recursos/matematicas/html/index.html";
-// Guía básica de formación del refuerzo de la competencia matemática — PDF
-const ENLACE_GUIA_MATEMATICAS_PDF = "https://www.juntadeandalucia.es/educacion/portales/documents/843352/2545202/Gu%C3%ADa%20de%20refuerzo%20de%20la%20competencia%20matem%C3%A1tica.pdf/6be9ce47-272b-6342-192a-799975ead181?version=2.0";
-
-// Manuales de usuario en PDF. Se publican JUNTO a este archivo (misma carpeta del
-// repositorio/despliegue): el botón «Manual de usuario» del banner de Inicio abre
-// en una pestaña nueva el manual del perfil conectado (admin o profesorado).
-const MANUALES_USUARIO = {
-  admin: "ManualUsuario-Admin.pdf",
-  profesorado: "ManualUsuario-Profesorado.pdf",
+  instruccionesCL: "https://www.juntadeandalucia.es/educacion/portals/web/transformacion-digital-educativa/planes-y-programas/-/planes-y-programas/plan-para-el-refuerzo-de-la-competencia-linguistica",
+  instruccionesRM: "https://www.juntadeandalucia.es/educacion/portals/web/transformacion-digital-educativa/planes-y-programas/-/planes-y-programas/plan-de-impulso-del-razonamiento-matematico",
 };
 
 // Departamentos disponibles en el centro (ordenados alfabéticamente).
@@ -799,9 +785,8 @@ const ENLACES_RECURSOS_RM = [
   { titulo: "Actividades para trabajar el Razonamiento Matemático", descripcion: "Banco de actividades y propuestas didácticas elaborado por el IES Ben Gabirol, organizado por niveles y bloques de contenido.", url: "https://gemini.google.com/share/13b0850202aa" },
   { titulo: "Partimos de algo: un poquito de teoría...", descripcion: "Documento del IES Virgen de Villadiego con fundamentación teórica del plan de razonamiento matemático y orientaciones didácticas.", url: "https://docs.google.com/document/d/e/2PACX-1vTdNf_xZ3Q7bmSudYTgWh8zGgGsaFywRORMirYnXBpLPcuG2Pioh1f7Lmr-kNuLJGyoqU0dsndBC_3g/pub" },
   { titulo: "Plantilla para la resolución de problemas científicos y tecnológicos", descripcion: "Plantilla editable para el alumnado con el método de resolución de problemas paso a paso.", url: "https://docs.google.com/document/d/1SOx9vlEndNgWEFP3a-uTSPkUpO9mldWzbATgt2EJCrs/edit?usp=sharing" },
-  { titulo: "Plan de Impulso al Razonamiento Matemático", descripcion: "Instrucciones oficiales de la Viceconsejería para el fomento del razonamiento matemático y su despliegue en los centros (PDF de la Junta de Andalucía).", url: ENLACES_NORMATIVA.instruccionesRM },
-  { titulo: "Guía Básica para el Refuerzo de la Competencia Matemática", descripcion: "Guía interactiva oficial de la Junta de Andalucía con orientaciones y actividades para el desarrollo de la competencia matemática.", url: ENLACE_GUIA_MATEMATICAS_HTML },
-  { titulo: "Guía Básica de Formación · Refuerzo de la Competencia Matemática", descripcion: "Guía básica de formación en PDF de la Junta de Andalucía con contenidos y ejemplos de actividades para el refuerzo de la competencia matemática.", url: ENLACE_GUIA_MATEMATICAS_PDF },
+  { titulo: "Plan de Impulso al Razonamiento Matemático", descripcion: "Instrucciones de la Junta de Andalucía para la implementación del Plan de Impulso del Razonamiento Matemático en los centros.", url: ENLACES_NORMATIVA.instruccionesRM },
+  { titulo: "Guía de Refuerzo de la Competencia Matemática", descripcion: "Guía oficial con orientaciones prácticas y ejemplos de actividades para el desarrollo de la competencia matemática.", url: ENLACES_NORMATIVA.instruccionesRM },
 ];
 
 // --- Paletas suaves para las tarjetas de las vistas «Recursos» (v2.22) ---
@@ -994,7 +979,6 @@ const state = {
   userProfile: null, // { role, department, displayName, email }
   loading: true,
   view: { name: "home" },
-  navHistory: [], // pila de navegación del botón flotante «Volver» (v2.24): vistas anteriores
   evidenciasLector: [],
   evidenciasRM: [],
   feedback: [], // aportaciones «Feedback entre compañer@s» del curso escolar activo (v2.21)
@@ -1152,12 +1136,6 @@ function _textoAvisoReglas(col) {
     return {
       principal: "<b>Reglas de Firestore desactualizadas:</b> la colección <code>usuarios</code> no permite al administrador leer los perfiles. La lista de usuarios de Gestión de usuarios fallará hasta publicar las reglas nuevas.",
       consola: "las reglas publicadas no permiten al administrador leer la colección 'usuarios' (lista de perfiles)",
-    };
-  }
-  if (col === "aportaciones") {
-    return {
-      principal: "<b>Reglas de Firestore desactualizadas:</b> falta la colección <code>aportaciones</code> (Feedback entre compañer@s). La lista de aportaciones quedará vacía y no se podrá registrar ninguna hasta publicar las reglas nuevas.",
-      consola: "falta la colección 'aportaciones' (Feedback entre compañer@s)",
     };
   }
   return {
@@ -1541,11 +1519,7 @@ function subscribeAllAportaciones(cb) {
     const items = [];
     snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
     cb(items);
-  }, (err) => {
-    console.error("subscribeAportaciones:", err);
-    if ((err.code || "") === "permission-denied") avisoReglasDesactualizadas("aportaciones");
-    cb([]);
-  });
+  }, (err) => { console.error("subscribeAportaciones:", err); cb([]); });
 }
 async function addAportacion(data) {
   const payload = {
@@ -2688,7 +2662,7 @@ function renderLogin() {
 
         <p class="text-xs text-slate-500 text-center mt-4 px-2">Entra con tu usuario IdEA como usuario y también como contraseña. Tras el primer acceso, puedes cambiar la contraseña si lo deseas.</p>
         <p class="text-xs text-slate-500 text-center mt-1 px-2">Las evidencias se asocian con tu cuenta.</p>
-        <p class="text-[10px] text-slate-400 text-center mt-1">ñ+&pi; v${APP_VERSION}</p>
+        <p class="text-[10px] text-slate-400 text-center mt-1">Gestión de usuarios v${APP_VERSION}</p>
       </div>
     </div>`;
 
@@ -2734,11 +2708,6 @@ function renderLogin() {
       }
     }
 
-    // Diagnóstico: deja constancia del correo interno usado para el intento
-    // (sintético <usuario>@iesvdv.planes o el correo real antiguo). Firebase
-    // devuelve auth/invalid-credential TANTO si la contraseña es errónea COMO si
-    // la cuenta Auth no existe: este log permite distinguir el caso real.
-    console.info("[login] Intentando acceso como:", email);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       // onAuthStateChanged se encarga del resto
@@ -2923,8 +2892,6 @@ async function checkBootstrapNeeded() {
 // -----------------------------------------------------------------------------
 function renderAppShell() {
   const v = state.view;
-  // Destino del botón flotante «Volver» (v2.24): la última vista de la pila, o Inicio si se agotó
-  const volverHacia = etiquetaVista(state.navHistory[state.navHistory.length - 1]) || "Inicio";
   const displayName = state.userProfile?.displayName || state.user?.displayName || state.user?.email?.split("@")[0] || "Profesor/a";
   const userRole = state.userProfile?.role || "profesor";
   const userDept = state.userProfile?.department || "";
@@ -2972,7 +2939,7 @@ function renderAppShell() {
             </div>
           </button>
 
-          <nav class="hidden lg:flex items-center gap-1">
+          <nav class="hidden md:flex items-center gap-1">
             ${navItems.map(item => `
               <button onclick='window._go(${JSON.stringify(item.view).replace(/'/g, "&#39;")})'
                 class="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 transition ${isActive(item) ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-100'}">
@@ -2995,13 +2962,13 @@ function renderAppShell() {
           <div class="flex items-center gap-1.5">
             <div class="relative">
               <button id="user-btn" class="px-2 sm:px-3 py-1.5 rounded-md hover:bg-slate-100 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full ${userRole === 'admin' ? 'bg-gradient-to-br from-rose-600 to-pink-600' : 'bg-gradient-to-br from-slate-600 to-slate-700'} text-white flex items-center justify-center text-xs font-semibold">${escapeHtml(displayName.charAt(0).toUpperCase())}</div>
-                <span class="hidden sm:inline text-sm font-medium text-slate-700 max-w-[120px] truncate">${escapeHtml(displayName)}</span>
+                <div class="w-7 h-7 rounded-full ${userRole === 'admin' ? 'bg-gradient-to-br from-rose-600 to-pink-600' : 'bg-gradient-to-br from-slate-600 to-slate-700'} text-white flex items-center justify-center text-xs font-semibold">${displayName.charAt(0).toUpperCase()}</div>
+                <span class="hidden sm:inline text-sm font-medium text-slate-700 max-w-[120px] truncate">${displayName}</span>
                 <span class="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded-full ${roleBadgeClass} font-semibold">${roleLabel}</span>
               </button>
               <div id="user-menu" class="hidden absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden">
                 <div class="px-3 py-2 border-b border-slate-200">
-                  <p class="text-sm font-medium text-slate-800">${escapeHtml(displayName)}</p>
+                  <p class="text-sm font-medium text-slate-800">${displayName}</p>
                   ${accessHandle ? `<p class="text-xs text-slate-500 truncate font-mono">@${escapeHtml(accessHandle)}</p>` : `<p class="text-xs text-slate-500 truncate">${escapeHtml(state.user?.email || "")}</p>`}
                   <div class="flex items-center gap-2 mt-1.5">
                     <span class="text-[10px] px-1.5 py-0.5 rounded-full ${roleBadgeClass} font-semibold">${roleLabel}</span>
@@ -3018,7 +2985,7 @@ function renderAppShell() {
                 </button>
               </div>
             </div>
-            <button id="burger-btn" class="lg:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Abrir menú">
+            <button id="burger-btn" class="md:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Abrir menú">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
           </div>
@@ -3026,7 +2993,7 @@ function renderAppShell() {
       </header>
 
       <!-- Mobile menu -->
-      <div id="mobile-menu" class="hidden fixed inset-0 z-50 lg:hidden">
+      <div id="mobile-menu" class="hidden fixed inset-0 z-50 md:hidden">
         <div class="absolute inset-0 bg-black/40" id="mobile-menu-overlay"></div>
         <div class="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl flex flex-col">
           <div class="p-4 border-b border-slate-200 flex items-center justify-between">
@@ -3101,18 +3068,6 @@ function renderAppShell() {
           <p class="mt-0.5">${INSTITUTO.localidad} · Curso ${INSTITUTO.curso} · Planes Lector y de Razonamiento Matemático</p>
         </div>
       </footer>
-
-      <!-- Botón flotante «Volver» (v2.24): fijo a la derecha, a media altura, en toda
-           subpantalla. Retrocede por la pila de navegación hasta llegar a Inicio.
-           Debajo de los modales (z-50), a la par del header (z-40). Deja paso a los
-           bordes con safe-area y tiene objetivo táctil de 44px. -->
-      ${v.name !== "home" ? `
-      <button id="btn-volver-flotante" onclick="window._goBack()"
-        title="Volver a ${volverHacia}" aria-label="Volver a ${volverHacia}"
-        class="z-40 bg-white/85 backdrop-blur-sm border border-slate-200 shadow-lg text-slate-600 hover:text-blue-700 hover:border-blue-300 hover:bg-white hover:shadow-xl active:scale-90 transition-all"
-        style="position:fixed; display:flex; align-items:center; justify-content:center; width:2.75rem; height:2.75rem; padding:0; border-radius:9999px; right:max(0.75rem, env(safe-area-inset-right)); top:50%; transform:translateY(-50%);">
-        <svg style="width:1.25rem; height:1.25rem; pointer-events:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-      </button>` : ""}
     </div>`;
 
   // User menu toggle
@@ -3196,46 +3151,8 @@ function renderMain() {
   attachHandlers();
 }
 
-// -----------------------------------------------------------------------------
-// NAVEGACIÓN (v2.24): «Volver» flotante + pila de vistas.
-// - _go(view): navega APILANDO la vista actual en state.navHistory (tope 30).
-// - _goBack(): desapila y vuelve a la vista anterior; si la pila está vacía, Inicio.
-// - No se apila si la vista destino es la MISMA pantalla (nombre + cursoId).
-// - La pila se vacía al iniciar sesión (reset de la sesión en onAuthStateChanged).
-// -----------------------------------------------------------------------------
-const NOMBRE_VISTA = {
-  "home": "Inicio",
-  "plan-lector": "Plan Lector",
-  "cronograma-lector": "Cronograma",
-  "recursos-cl": "Recursos de Lectura",
-  "razonamiento-matematico": "Razonamiento Matemático",
-  "curso-rm": "Curso",
-  "recursos-rm": "Recursos de RM",
-  "mi-perfil": "Mi Perfil",
-  "informes": "Informes de Uso",
-  "gestion-usuarios": "Gestión de Usuarios",
-  "cursos-escolares": "Cursos Escolares",
-};
-// Etiqueta legible de una vista (con parámetros: curso-rm muestra el nombre del curso)
-function etiquetaVista(view) {
-  if (!view) return "";
-  if (view.name === "curso-rm" && view.cursoId) {
-    const c = RM_CURSOS.find(x => x.id === view.cursoId);
-    return c?.nombre || view.cursoId;
-  }
-  return NOMBRE_VISTA[view.name] || view.name;
-}
-// ¿Son la misma pantalla? (mismo nombre y mismos parámetros relevantes)
-function mismaVista(a, b) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  return a.name === b.name && (a.cursoId || null) === (b.cursoId || null);
-}
-function navigateTo(view, { push = true } = {}) {
-  if (push && !mismaVista(view, state.view)) {
-    state.navHistory.push({ ...state.view });
-    if (state.navHistory.length > 30) state.navHistory.shift(); // tope de seguridad
-  }
+// Expose navigation helpers
+window._go = (view) => {
   state.view = view;
   state.openEvals = new Set();
   state.filter = { type: "all", value: "" };
@@ -3243,12 +3160,6 @@ function navigateTo(view, { push = true } = {}) {
   state.showHelp = {};
   window.scrollTo({ top: 0, behavior: "smooth" });
   renderAppShell();
-}
-// Expose navigation helpers
-window._go = (view) => navigateTo(view, { push: true });
-window._goBack = () => {
-  const prev = state.navHistory.pop();
-  navigateTo(prev || { name: "home" }, { push: false });
 };
 window._closeMobileMenu = () => document.getElementById("mobile-menu")?.classList.add("hidden");
 window._logout = () => signOut(auth);
@@ -3259,17 +3170,13 @@ window._logout = () => signOut(auth);
 function viewHome() {
   return `
     <div class="space-y-6">
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-emerald-600 text-white shadow-xl p-6 sm:p-10 pb-16 sm:pb-10 text-center">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-emerald-600 text-white shadow-xl p-6 sm:p-10 text-center">
         <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-lg mb-4">
           <span class="text-3xl sm:text-4xl font-bold">ñ<span class="text-emerald-200 text-2xl">+</span>π</span>
         </div>
         <h1 class="text-2xl sm:text-4xl font-bold leading-tight">Planes Lector y de Razonamiento Matemático</h1>
         <p class="mt-2 text-sm sm:text-base text-white/90">${INSTITUTO.nombre} · ${INSTITUTO.localidad}</p>
         <p class="mt-1 text-xs sm:text-sm text-white/80">Curso ${INSTITUTO.curso}</p>
-        <a href="${isAdmin() ? MANUALES_USUARIO.admin : MANUALES_USUARIO.profesorado}" target="_blank" rel="noopener" title="Manual de usuario en PDF (se abre en una ventana nueva)" class="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 inline-flex items-center gap-1.5 rounded-lg bg-white/15 hover:bg-white/30 border border-white/25 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-white transition">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          <span class="hidden sm:inline">Manual de usuario</span><span class="sm:hidden">Manual</span>
-        </a>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
@@ -3566,7 +3473,7 @@ window._openGroupMenu = (fecha, hora, semana, dia) => {
             <button data-action="select-group-lector" data-grupo="${g}"
               class="p-3 rounded-lg border text-sm font-semibold transition ${existing ? 'bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100' : 'bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50'}">
               <span class="block">${g}</span>
-              ${existing ? `<span class="text-[10px] font-normal text-emerald-600 mt-0.5 block">${escapeHtml(existing.profesor || "")}</span>` : ""}
+              ${existing ? `<span class="text-[10px] font-normal text-emerald-600 mt-0.5 block">${existing.profesor}</span>` : ""}
             </button>`;
         }).join("")}
       </div>
@@ -3639,13 +3546,13 @@ function openEvidenciaLectorDialog(data) {
           <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
           ${isView ? "Consultar evidencia" : (data.mode === "edit" ? "Editar evidencia" : "Registrar evidencia de lectura")}
         </h2>
-        <p class="text-sm text-slate-500 mt-1">${escapeHtml(String(data.dia))}, semana ${escapeHtml(String(data.semana))} · ${formatDateES(new Date(data.fecha))} · ${escapeHtml(String(data.hora))}ª hora · Grupo <strong>${escapeHtml(String(data.grupo))}</strong></p>
+        <p class="text-sm text-slate-500 mt-1">${data.dia}, semana ${data.semana} · ${formatDateES(new Date(data.fecha))} · ${data.hora}ª hora · Grupo <strong>${data.grupo}</strong></p>
         ${isView ? `<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-2 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solo lectura — no eres el autor</p>` : ""}
       </div>
       <div class="p-5 space-y-3">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del profesor/a *</label>
-          <input id="ev-lector-profesor" type="text" value="${escapeHtml(profesorVal)}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
+          <input id="ev-lector-profesor" type="text" value="${profesorVal.replace(/"/g, '&quot;')}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Tipología textual *</label>
@@ -3663,7 +3570,7 @@ function openEvidenciaLectorDialog(data) {
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Observaciones (opcional)</label>
-          <textarea id="ev-lector-obs" rows="2" ${isView ? 'disabled' : ''} placeholder="Comentarios sobre la sesión, dificultades, logros…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${escapeHtml(obsVal)}</textarea>
+          <textarea id="ev-lector-obs" rows="2" ${isView ? 'disabled' : ''} placeholder="Comentarios sobre la sesión, dificultades, logros…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${obsVal}</textarea>
         </div>
         <div id="ev-lector-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
       </div>
@@ -3824,6 +3731,7 @@ function _renderFeedbackForm() {
   const tituloVal = existing?.titulo || "";
   const descVal = existing?.descripcion || "";
   const urlVal = existing?.url || "";
+  const esc = (s) => String(s).replace(/"/g, "&quot;");
   body.innerHTML = `
     <div class="p-5 space-y-3">
       <div>
@@ -3841,19 +3749,19 @@ function _renderFeedbackForm() {
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Autor/a</label>
-        <input id="fb-autor" type="text" value="${escapeHtml(_feedbackAutorNombre())}" disabled class="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 outline-none" />
+        <input id="fb-autor" type="text" value="${esc(_feedbackAutorNombre())}" disabled class="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Título de la actividad *</label>
-        <input id="fb-titulo" type="text" value="${escapeHtml(tituloVal)}" maxlength="120" placeholder="Título breve que identifique la actividad" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-titulo" type="text" value="${esc(tituloVal)}" maxlength="120" placeholder="Título breve que identifique la actividad" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Descripción *</label>
-        <input id="fb-descripcion" type="text" value="${escapeHtml(descVal)}" maxlength="400" placeholder="En qué consiste, cómo aplicarla, materiales…" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-descripcion" type="text" value="${esc(descVal)}" maxlength="400" placeholder="En qué consiste, cómo aplicarla, materiales…" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">URL (opcional)</label>
-        <input id="fb-url" type="text" value="${escapeHtml(urlVal)}" placeholder="https://… enlace al recurso" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-url" type="text" value="${esc(urlVal)}" placeholder="https://… enlace al recurso" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div id="fb-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
     </div>
@@ -4597,27 +4505,27 @@ function openEvidenciaRMDialog(data) {
           <svg class="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
           ${isView ? "Consultar evidencia" : (data.mode === "edit" ? "Editar evidencia" : "Registrar actividad RM")}
         </h2>
-        <p class="text-sm text-slate-500 mt-1">Semana ${escapeHtml(String(data.semana))} · Sesión ${escapeHtml(String(data.sesion))} · ${escapeHtml(String(data.materia))} · Grupo <strong>${escapeHtml(String(data.grupo))}</strong></p>
+        <p class="text-sm text-slate-500 mt-1">Semana ${data.semana} · Sesión ${data.sesion} · ${data.materia} · Grupo <strong>${data.grupo}</strong></p>
         ${isView ? `<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-2 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solo lectura — no eres el autor</p>` : ""}
       </div>
       <div class="p-5 space-y-3">
         <div class="bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs">
           <p class="font-semibold text-slate-700">Actividad sugerida:</p>
-          <p class="text-slate-600 mt-0.5">${escapeHtml(String(data.actividad))}</p>
-          <p class="mt-1.5"><span class="font-mono bg-slate-200 px-1.5 py-0.5 rounded text-[10px]">${escapeHtml(String(data.codigo))}</span></p>
+          <p class="text-slate-600 mt-0.5">${data.actividad}</p>
+          <p class="mt-1.5"><span class="font-mono bg-slate-200 px-1.5 py-0.5 rounded text-[10px]">${data.codigo}</span></p>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del profesor/a *</label>
-          <input id="ev-rm-profesor" type="text" value="${escapeHtml(profesorVal)}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
+          <input id="ev-rm-profesor" type="text" value="${profesorVal.replace(/"/g, '&quot;')}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Actividad realizada *</label>
-          <textarea id="ev-rm-actividad" rows="3" ${isView ? 'disabled' : ''} placeholder="Describe la actividad que has realizado" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${escapeHtml(actividadRealizadaVal)}</textarea>
+          <textarea id="ev-rm-actividad" rows="3" ${isView ? 'disabled' : ''} placeholder="Describe la actividad que has realizado" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${actividadRealizadaVal}</textarea>
           ${isView ? "" : `<p class="text-xs text-slate-500 mt-0.5">Puedes ajustar la sugerencia según tu desarrollo de la sesión.</p>`}
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Observaciones (opcional)</label>
-          <textarea id="ev-rm-obs" rows="2" ${isView ? 'disabled' : ''} placeholder="Dificultades, logros, materiales empleados…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${escapeHtml(obsVal)}</textarea>
+          <textarea id="ev-rm-obs" rows="2" ${isView ? 'disabled' : ''} placeholder="Dificultades, logros, materiales empleados…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none resize-none ${isView ? 'bg-slate-50 text-slate-600' : ''}">${obsVal}</textarea>
         </div>
         <div id="ev-rm-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
       </div>
@@ -4733,7 +4641,7 @@ function viewMiPerfil() {
     <div class="space-y-5 max-w-3xl mx-auto">
       <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg p-5 sm:p-7 flex items-center gap-4">
         <div class="w-16 h-16 rounded-full ${p.role === 'admin' ? 'bg-gradient-to-br from-rose-500 to-pink-500' : 'bg-gradient-to-br from-blue-500 to-emerald-500'} flex items-center justify-center text-2xl font-bold shrink-0">
-          ${escapeHtml((p.displayName || "P").charAt(0).toUpperCase())}
+          ${(p.displayName || "P").charAt(0).toUpperCase()}
         </div>
         <div class="min-w-0">
           <h1 class="text-xl sm:text-2xl font-bold truncate">${escapeHtml(p.displayName || "Profesor/a")}</h1>
@@ -4753,7 +4661,7 @@ function viewMiPerfil() {
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Nombre y apellidos *</label>
-            <input id="perfil-nombre" type="text" value="${escapeHtml(p.displayName || "")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+            <input id="perfil-nombre" type="text" value="${(p.displayName || "").replace(/"/g, '&quot;')}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Usuario de acceso</label>
@@ -5076,7 +4984,7 @@ window._showInformeModal = () => {
   // Eliminar modal previo
   document.getElementById("informe-modal")?.remove();
 
-  // Recoger datos del formulario del informe
+  // Recoger datos del formulario (reutilizar la lógica de _renderInformePreview)
   const period = state.informeConfig.period;
   const curso = getCurrentCurso();
 
@@ -5214,6 +5122,162 @@ window._setPeriod = (period) => {
     }
   });
   window._renderFechasContainer();
+  // Actualizar vista previa después de renderizar el contenedor de fechas
+  setTimeout(() => window._renderInformePreview(), 50);
+};
+
+// Renderiza la vista previa del informe en pantalla (no PDF)
+window._renderInformePreview = () => {
+  const container = document.getElementById("rpt-preview-content");
+  if (!container) return;
+
+  const period = state.informeConfig.period;
+  const curso = getCurrentCurso();
+
+  // Recoger fechas según periodo
+  let fechaInicio, fechaFin, periodLabel;
+  try {
+    if (period === "diario") {
+      const f = document.getElementById("rpt-fecha")?.value;
+      if (!f) { container.innerHTML = '<p class="text-slate-400">Selecciona un día.</p>'; return; }
+      fechaInicio = f; fechaFin = f;
+      periodLabel = `Día ${formatDateES(new Date(f))}`;
+    } else if (period === "semanal") {
+      const wnum = parseInt(document.getElementById("rpt-semana")?.value || "1");
+      const { start, end } = getWeekDates(wnum);
+      fechaInicio = dateToISO(start); fechaFin = dateToISO(end);
+      periodLabel = `Semana ${wnum} (${formatDateES(start)} → ${formatDateES(end)})`;
+    } else if (period === "mensual") {
+      const v = document.getElementById("rpt-mes")?.value || "";
+      const [s, e] = v.split("|");
+      if (!s || !e) { container.innerHTML = '<p class="text-slate-400">Selecciona un mes.</p>'; return; }
+      fechaInicio = s; fechaFin = e;
+      const d = new Date(s);
+      periodLabel = d.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+    } else if (period === "anual") {
+      const cursoId = document.getElementById("rpt-curso")?.value || curso.id;
+      const c = (state.cursos).find(x => x.id === cursoId) || curso;
+      fechaInicio = c.start; fechaFin = c.end;
+      periodLabel = `Curso ${c.label || c.id}`;
+    }
+  } catch (e) {
+    console.error("[_renderInformePreview] Error recogiendo fechas:", e);
+    container.innerHTML = '<p class="text-red-500">Error al calcular fechas.</p>';
+    return;
+  }
+
+  // Recoger plan y área seleccionados
+  const plan = document.querySelector('input[name="rpt-plan"]:checked')?.value || "lector";
+  const area = document.querySelector('input[name="rpt-area"]:checked')?.value || "";
+
+  // Filtrar evidencias por fecha
+  const inRange = (iso) => iso >= fechaInicio && iso <= fechaFin;
+  let evsLector = state.evidenciasLector.filter(e => e.fecha && inRange(e.fecha));
+  let evsRM = state.evidenciasRM.filter(e => {
+    if (!e.semana) return false;
+    const { start } = getWeekDates(e.semana);
+    return inRange(dateToISO(start));
+  });
+
+  // Filtrar por área
+  if (area) {
+    if (area !== LECTOR_AREA) evsLector = [];
+    evsRM = evsRM.filter(e => MATERIA_TO_AREA[e.materia] === area);
+  }
+
+  // Construir HTML de la vista previa
+  let html = `
+    <div class="space-y-4">
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+          <div>
+            <p class="text-2xl font-bold text-blue-600">${evsLector.length}</p>
+            <p class="text-[11px] text-slate-500">Plan Lector</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-purple-600">${evsRM.length}</p>
+            <p class="text-[11px] text-slate-500">Plan RM</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-emerald-600">${evsLector.length + evsRM.length}</p>
+            <p class="text-[11px] text-slate-500">Total</p>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-500 mb-1">Periodo</p>
+            <p class="text-xs font-semibold text-slate-700">${periodLabel}</p>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-slate-500 text-center">
+          Plan: <strong>${plan === "ambos" ? "Ambos" : (plan === "lector" ? "Lector" : "RM")}</strong>
+          ${area ? `· Área: <strong>${area} · ${AMBITOS[area]?.nombre || ""}</strong>` : "· Todas las áreas"}
+        </div>
+      </div>`;
+
+  if (plan === "lector" || plan === "ambos") {
+    html += `
+      <div>
+        <h4 class="text-sm font-bold text-blue-700 mb-2 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          Plan Lector (${evsLector.length})
+        </h4>`;
+    if (evsLector.length > 0) {
+      html += `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200 rounded">
+        <thead class="bg-blue-50"><tr>
+          <th class="px-2 py-1.5 text-left">Fecha</th><th class="px-2 py-1.5 text-left">Grupo</th>
+          <th class="px-2 py-1.5 text-left">Profesor</th><th class="px-2 py-1.5 text-left">Tipología</th>
+          <th class="px-2 py-1.5 text-left">Tipo texto</th>
+        </tr></thead><tbody class="divide-y divide-slate-100">`;
+      evsLector.slice(0, 20).forEach(e => {
+        html += `<tr>
+          <td class="px-2 py-1.5">${e.fecha || "—"}</td>
+          <td class="px-2 py-1.5">${e.grupo || "—"}</td>
+          <td class="px-2 py-1.5">${e.profesor || "—"}</td>
+          <td class="px-2 py-1.5">${e.tipologia || "—"}</td>
+          <td class="px-2 py-1.5">${e.tipoTexto || "—"}</td>
+        </tr>`;
+      });
+      if (evsLector.length > 20) html += `<tr><td colspan="5" class="px-2 py-1.5 text-center text-slate-400 italic">...y ${evsLector.length - 20} más</td></tr>`;
+      html += `</tbody></table></div>`;
+    } else {
+      html += `<p class="text-xs text-slate-400 italic">No hay evidencias del Plan Lector en este periodo.</p>`;
+    }
+    html += `</div>`;
+  }
+
+  if (plan === "rm" || plan === "ambos") {
+    html += `
+      <div>
+        <h4 class="text-sm font-bold text-purple-700 mb-2 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/></svg>
+          Plan de Razonamiento Matemático (${evsRM.length})
+        </h4>`;
+    if (evsRM.length > 0) {
+      html += `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200 rounded">
+        <thead class="bg-purple-50"><tr>
+          <th class="px-2 py-1.5 text-left">Sem.</th><th class="px-2 py-1.5 text-left">Grupo</th>
+          <th class="px-2 py-1.5 text-left">Materia</th><th class="px-2 py-1.5 text-left">Profesor</th>
+          <th class="px-2 py-1.5 text-left">Actividad realizada</th>
+        </tr></thead><tbody class="divide-y divide-slate-100">`;
+      evsRM.slice(0, 20).forEach(e => {
+        const { start } = getWeekDates(e.semana);
+        html += `<tr>
+          <td class="px-2 py-1.5">S${e.semana}</td>
+          <td class="px-2 py-1.5">${e.grupo || "—"}</td>
+          <td class="px-2 py-1.5">${e.materia || "—"}</td>
+          <td class="px-2 py-1.5">${e.profesor || "—"}</td>
+          <td class="px-2 py-1.5">${(e.actividadRealizada || "").slice(0, 60)}</td>
+        </tr>`;
+      });
+      if (evsRM.length > 20) html += `<tr><td colspan="5" class="px-2 py-1.5 text-center text-slate-400 italic">...y ${evsRM.length - 20} más</td></tr>`;
+      html += `</tbody></table></div>`;
+    } else {
+      html += `<p class="text-xs text-slate-400 italic">No hay evidencias del Plan RM en este periodo.</p>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
 };
 
 window._renderFechasContainer = () => {
@@ -5841,7 +5905,7 @@ window._renderUsersTable = () => {
         ${bulk ? `<td class="px-3 py-3 text-center"><input type="checkbox" data-uid="${uid}" ${state.bulkSel.has(uid) ? "checked" : ""} onchange="window._bulkToggle && window._bulkToggle(this)" class="w-4 h-4 accent-red-600 cursor-pointer align-middle" title="${isSelf ? "Tu propia cuenta (se eliminará la última y se cerrará tu sesión)" : "Marcar para eliminar"}" /></td>` : ""}
         <td class="px-4 py-3">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full ${isAdminU ? "bg-gradient-to-br from-rose-500 to-pink-500" : "bg-gradient-to-br from-slate-500 to-slate-600"} text-white flex items-center justify-center text-xs font-semibold shrink-0">${escapeHtml((u.displayName || "?").charAt(0).toUpperCase())}</div>
+            <div class="w-8 h-8 rounded-full ${isAdminU ? "bg-gradient-to-br from-rose-500 to-pink-500" : "bg-gradient-to-br from-slate-500 to-slate-600"} text-white flex items-center justify-center text-xs font-semibold shrink-0">${(u.displayName || "?").charAt(0).toUpperCase()}</div>
             <p class="font-medium text-slate-800 truncate">${escapeHtml(u.displayName || "Sin nombre")}${isSelf ? ' <span class="text-[10px] text-blue-600 font-normal">(tú)</span>' : ""}</p>
           </div>
         </td>
@@ -5854,9 +5918,9 @@ window._renderUsersTable = () => {
         <td class="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">${alta}</td>
         <td class="px-4 py-3">
           <div class="flex items-center justify-end gap-1.5">
-            <button data-action="edit-user" data-uid="${uid}" data-nombre="${escapeHtml(u.displayName || "")}" data-email="${escapeHtml(u.email || "")}" data-departamento="${escapeHtml(u.department || "")}" data-role="${escapeHtml(u.role || "profesor")}" data-username="${escapeHtml(u.username || "")}" class="text-xs px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editar</button>
+            <button data-action="edit-user" data-uid="${uid}" data-nombre="${(u.displayName || "").replace(/"/g, "&quot;")}" data-email="${(u.email || "").replace(/"/g, "&quot;")}" data-departamento="${u.department || ""}" data-role="${u.role || "profesor"}" data-username="${(u.username || "").replace(/"/g, "&quot;")}" class="text-xs px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editar</button>
             <button data-action="reset-pass" data-uid="${uid}" class="text-xs px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 transition" title="Restablecer contraseña" ${isSelf ? "disabled" : ""}>Contraseña</button>
-            <button data-action="delete-user" data-uid="${uid}" data-nombre="${escapeHtml(u.displayName || "Sin nombre")}" data-username="${escapeHtml(u.username || "")}" data-email="${escapeHtml(u.email || "")}" class="text-xs px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition" title="${isSelf ? "Eliminar tu propia cuenta (se cerrará tu sesión)" : "Eliminar usuario y todos sus datos"}">Eliminar</button>
+            <button data-action="delete-user" data-uid="${uid}" data-nombre="${(u.displayName || "Sin nombre").replace(/"/g, "&quot;")}" data-username="${(u.username || "").replace(/"/g, "&quot;")}" data-email="${(u.email || "").replace(/"/g, "&quot;")}" class="text-xs px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition" title="${isSelf ? "Eliminar tu propia cuenta (se cerrará tu sesión)" : "Eliminar usuario y todos sus datos"}">Eliminar</button>
           </div>
         </td>
       </tr>`;
@@ -6380,11 +6444,11 @@ window._importUsuariosExcel = async () => {
     const seen = new Set();
     usuarios.forEach((u, i) => {
       if (u.nombre.length < 3) errores.push(`Fila ${i + 2}: nombre demasiado corto`);
-      if (!isValidUsername(u.username)) errores.push(`Fila ${i + 2}: usuario "${escapeHtml(u.username)}" no válido (3-30 caracteres: minúsculas, números, punto, guion o guion bajo)`);
+      if (!isValidUsername(u.username)) errores.push(`Fila ${i + 2}: usuario "${u.username}" no válido (3-30 caracteres: minúsculas, números, punto, guion o guion bajo)`);
       if (u.pass.length < 6) errores.push(`Fila ${i + 2}: contraseña demasiado corta`);
-      if (u.rol && !["profesor", "admin"].includes(u.rol)) errores.push(`Fila ${i + 2}: rol "${escapeHtml(u.rol)}" no válido (profesor o admin)`);
-      if (u.departamento && !DEPARTAMENTOS.includes(u.departamento)) errores.push(`Fila ${i + 2}: departamento "${escapeHtml(u.departamento)}" no pertenece al centro`);
-      if (seen.has(u.username)) errores.push(`Fila ${i + 2}: usuario "${escapeHtml(u.username)}" duplicado en el archivo`);
+      if (u.rol && !["profesor", "admin"].includes(u.rol)) errores.push(`Fila ${i + 2}: rol "${u.rol}" no válido (profesor o admin)`);
+      if (u.departamento && !DEPARTAMENTOS.includes(u.departamento)) errores.push(`Fila ${i + 2}: departamento "${u.departamento}" no pertenece al centro`);
+      if (seen.has(u.username)) errores.push(`Fila ${i + 2}: usuario "${u.username}" duplicado en el archivo`);
       seen.add(u.username);
     });
     if (errores.length > 0) {
@@ -6530,7 +6594,7 @@ window._openEditUserDialog = (uid, nombre, email, departamento, rol, username) =
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre y apellidos *</label>
-          <input id="edituser-nombre" type="text" value="${escapeHtml(nombre || "")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+          <input id="edituser-nombre" type="text" value="${(nombre || "").replace(/"/g, "&quot;")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Departamento *</label>
@@ -6820,7 +6884,7 @@ window._openDeleteUsuarioDialog = (uid, nombre, email, username) => {
       </div>
       <div class="p-5 border-t border-slate-200 flex flex-wrap gap-2">
         <button data-action="close-delete-user-dialog" class="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-medium">Cancelar</button>
-        <button data-action="confirm-delete-usuario" data-uid="${uid}" data-nombre="${escapeHtml(nombre)}" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-sm font-semibold flex items-center gap-1.5" id="deluser-btn">
+        <button data-action="confirm-delete-usuario" data-uid="${uid}" data-nombre="${nombre.replace(/"/g, '&quot;')}" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-sm font-semibold flex items-center gap-1.5" id="deluser-btn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           Eliminar definitivamente
         </button>
@@ -7412,7 +7476,7 @@ window._openCursoProfesoresDialog = (cursoId) => {
         </h2>
         <p class="text-sm text-slate-500 mt-1">Marca quién pertenece a este curso. Los cambios se guardan al pulsar «Guardar».</p>
       </div>
-      <div class="p-5 overflow-y-auto space-y-3 flex-1 min-h-0">
+      <div class="p-5 overflow-y-auto space-y-3">
         <div id="curso-prof-curso-id-holder" class="hidden" data-curso-id="${escapeHtml(curso.id)}"></div>
         ${usuarios.length === 0
           ? `<p class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">No hay perfiles de profesorado cargados todavía. Puedes añadir identificadores manualmente (uid, correo o nombre de usuario) en el campo de abajo.</p>`
@@ -7882,6 +7946,18 @@ function attachHandlers() {
   // Inicializar el contenedor de fechas del informe si estamos en esa vista
   if (state.view.name === "informes") {
     window._renderFechasContainer();
+    // Cancelar timeout previo para evitar listeners duplicados
+    if (window._informesTimeout) clearTimeout(window._informesTimeout);
+    window._informesTimeout = setTimeout(() => {
+      window._renderInformePreview();
+      // Añadir listeners para actualizar vista previa cuando cambien los inputs
+      document.querySelectorAll('#rpt-fechas-container input, #rpt-fechas-container select').forEach(el => {
+        el.addEventListener("change", () => window._renderInformePreview());
+      });
+      document.querySelectorAll('input[name="rpt-plan"], input[name="rpt-area"]').forEach(el => {
+        el.addEventListener("change", () => window._renderInformePreview());
+      });
+    }, 100);
   }
   // Poblar la tabla de usuarios (la vista solo devuelve el HTML; las filas se
   // insertan aquí, después de montar la vista en el DOM). Sin esto, el listado
@@ -7915,7 +7991,6 @@ onAuthStateChanged(auth, async (user) => {
     // los estados efímeros de vista (el mismo reset que hace _go) y el modo de
     // borrado masivo, para que cada sesión empiece limpia.
     state.view = { name: "home" };
-    state.navHistory = []; // cada sesión empieza sin historial de «Volver» (v2.24)
     state.openEvals = new Set();
     state.filter = { type: "all", value: "" };
     state.showReports = false;
@@ -7964,27 +8039,20 @@ onAuthStateChanged(auth, async (user) => {
 // evita el clásico "no veo los cambios" por caché de la PWA.
 function _showUpdateBanner(deployed) {
   if (document.getElementById("update-banner")) return;
-  const titulo = deployed
-    ? `Versión nueva disponible (v${escapeHtml(deployed)}).`
-    : "Hay una versión nueva de la aplicación lista.";
-  const detalle = deployed
-    ? `<span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>`
-    : `<span class="opacity-90">Recarga cuando te venga bien para aplicarla: nunca se recarga sola, para no perder lo que estés escribiendo.</span>`;
   const bar = document.createElement("div");
   bar.id = "update-banner";
   bar.className = "fixed bottom-0 inset-x-0 z-[60] bg-amber-500 text-white shadow-lg";
   bar.innerHTML = `
     <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-2 text-sm">
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="font-semibold">${titulo}</span>
-      ${detalle}
+      <span class="font-semibold">Versión nueva disponible (v${escapeHtml(deployed)}).</span>
+      <span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>
       <button id="btn-update-reload" class="ml-auto px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-amber-700 text-xs font-bold">Recargar ahora</button>
     </div>`;
   document.body.appendChild(bar);
   const btn = document.getElementById("btn-update-reload");
   if (btn) btn.onclick = () => location.reload();
 }
-window._showUpdateBanner = _showUpdateBanner; // hook para consola/pruebas
 
 async function _checkDeployedVersion() {
   try {
@@ -8054,16 +8122,11 @@ if (_swRegistrable) {
       })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   });
-  // ¿Ya controlaba un SW la página al cargar? Si no, el primer controllerchange
-  // es la PRIMERA instalación (primera visita o tras borrar datos del sitio):
-  // no es un cambio de versión y no debe avisar ni recargar.
-  window._hadSwController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!window._hadSwController) { window._hadSwController = true; return; }
-    // Cambio real de SW con la página abierta (versión nueva instalada):
-    // NUNCA recarga automática (podría perderse texto sin guardar); se muestra
-    // el aviso no intrusivo con el botón «Recargar ahora».
-    _showUpdateBanner();
+    if (!window._swReloaded) {
+      window._swReloaded = true;
+      window.location.reload();
+    }
   });
 }
 

@@ -61,6 +61,9 @@
   .acc-chevron { transition: transform 0.2s; }
   /* Dialog overlay */
   .dialog-overlay { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); }
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   /* Celdas del cronograma lector con evidencia */
   .cell-has-evidence { background-color: #ecfdf5; border-color: #34d399; }
   .cell-has-evidence:hover { background-color: #d1fae5; }
@@ -406,7 +409,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.30";
+const APP_VERSION = "2.26";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -661,14 +664,6 @@ const ENLACES_NORMATIVA = {
 const ENLACE_GUIA_MATEMATICAS_HTML = "https://www.juntadeandalucia.es/educacion/descargas/recursos/matematicas/html/index.html";
 // Guía básica de formación del refuerzo de la competencia matemática — PDF
 const ENLACE_GUIA_MATEMATICAS_PDF = "https://www.juntadeandalucia.es/educacion/portales/documents/843352/2545202/Gu%C3%ADa%20de%20refuerzo%20de%20la%20competencia%20matem%C3%A1tica.pdf/6be9ce47-272b-6342-192a-799975ead181?version=2.0";
-
-// Manuales de usuario en PDF. Se publican JUNTO a este archivo (misma carpeta del
-// repositorio/despliegue): el botón «Manual de usuario» del banner de Inicio abre
-// en una pestaña nueva el manual del perfil conectado (admin o profesorado).
-const MANUALES_USUARIO = {
-  admin: "ManualUsuario-Admin.pdf",
-  profesorado: "ManualUsuario-Profesorado.pdf",
-};
 
 // Departamentos disponibles en el centro (ordenados alfabéticamente).
 // Es la lista ÚNICA de verdad: alimenta los desplegables de alta/edición, la
@@ -2688,7 +2683,7 @@ function renderLogin() {
 
         <p class="text-xs text-slate-500 text-center mt-4 px-2">Entra con tu usuario IdEA como usuario y también como contraseña. Tras el primer acceso, puedes cambiar la contraseña si lo deseas.</p>
         <p class="text-xs text-slate-500 text-center mt-1 px-2">Las evidencias se asocian con tu cuenta.</p>
-        <p class="text-[10px] text-slate-400 text-center mt-1">ñ+&pi; v${APP_VERSION}</p>
+        <p class="text-[10px] text-slate-400 text-center mt-1">Gestión de usuarios v${APP_VERSION}</p>
       </div>
     </div>`;
 
@@ -3259,17 +3254,13 @@ window._logout = () => signOut(auth);
 function viewHome() {
   return `
     <div class="space-y-6">
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-emerald-600 text-white shadow-xl p-6 sm:p-10 pb-16 sm:pb-10 text-center">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-emerald-600 text-white shadow-xl p-6 sm:p-10 text-center">
         <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-lg mb-4">
           <span class="text-3xl sm:text-4xl font-bold">ñ<span class="text-emerald-200 text-2xl">+</span>π</span>
         </div>
         <h1 class="text-2xl sm:text-4xl font-bold leading-tight">Planes Lector y de Razonamiento Matemático</h1>
         <p class="mt-2 text-sm sm:text-base text-white/90">${INSTITUTO.nombre} · ${INSTITUTO.localidad}</p>
         <p class="mt-1 text-xs sm:text-sm text-white/80">Curso ${INSTITUTO.curso}</p>
-        <a href="${isAdmin() ? MANUALES_USUARIO.admin : MANUALES_USUARIO.profesorado}" target="_blank" rel="noopener" title="Manual de usuario en PDF (se abre en una ventana nueva)" class="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 inline-flex items-center gap-1.5 rounded-lg bg-white/15 hover:bg-white/30 border border-white/25 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-white transition">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          <span class="hidden sm:inline">Manual de usuario</span><span class="sm:hidden">Manual</span>
-        </a>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
@@ -3645,7 +3636,7 @@ function openEvidenciaLectorDialog(data) {
       <div class="p-5 space-y-3">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del profesor/a *</label>
-          <input id="ev-lector-profesor" type="text" value="${escapeHtml(profesorVal)}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
+          <input id="ev-lector-profesor" type="text" value="${profesorVal.replace(/"/g, '&quot;')}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Tipología textual *</label>
@@ -3824,6 +3815,7 @@ function _renderFeedbackForm() {
   const tituloVal = existing?.titulo || "";
   const descVal = existing?.descripcion || "";
   const urlVal = existing?.url || "";
+  const esc = (s) => String(s).replace(/"/g, "&quot;");
   body.innerHTML = `
     <div class="p-5 space-y-3">
       <div>
@@ -3841,19 +3833,19 @@ function _renderFeedbackForm() {
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Autor/a</label>
-        <input id="fb-autor" type="text" value="${escapeHtml(_feedbackAutorNombre())}" disabled class="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 outline-none" />
+        <input id="fb-autor" type="text" value="${esc(_feedbackAutorNombre())}" disabled class="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Título de la actividad *</label>
-        <input id="fb-titulo" type="text" value="${escapeHtml(tituloVal)}" maxlength="120" placeholder="Título breve que identifique la actividad" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-titulo" type="text" value="${esc(tituloVal)}" maxlength="120" placeholder="Título breve que identifique la actividad" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Descripción *</label>
-        <input id="fb-descripcion" type="text" value="${escapeHtml(descVal)}" maxlength="400" placeholder="En qué consiste, cómo aplicarla, materiales…" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-descripcion" type="text" value="${esc(descVal)}" maxlength="400" placeholder="En qué consiste, cómo aplicarla, materiales…" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">URL (opcional)</label>
-        <input id="fb-url" type="text" value="${escapeHtml(urlVal)}" placeholder="https://… enlace al recurso" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+        <input id="fb-url" type="text" value="${esc(urlVal)}" placeholder="https://… enlace al recurso" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
       </div>
       <div id="fb-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
     </div>
@@ -4608,7 +4600,7 @@ function openEvidenciaRMDialog(data) {
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del profesor/a *</label>
-          <input id="ev-rm-profesor" type="text" value="${escapeHtml(profesorVal)}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
+          <input id="ev-rm-profesor" type="text" value="${profesorVal.replace(/"/g, '&quot;')}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Actividad realizada *</label>
@@ -4753,7 +4745,7 @@ function viewMiPerfil() {
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Nombre y apellidos *</label>
-            <input id="perfil-nombre" type="text" value="${escapeHtml(p.displayName || "")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+            <input id="perfil-nombre" type="text" value="${(p.displayName || "").replace(/"/g, '&quot;')}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Usuario de acceso</label>
@@ -5854,9 +5846,9 @@ window._renderUsersTable = () => {
         <td class="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">${alta}</td>
         <td class="px-4 py-3">
           <div class="flex items-center justify-end gap-1.5">
-            <button data-action="edit-user" data-uid="${uid}" data-nombre="${escapeHtml(u.displayName || "")}" data-email="${escapeHtml(u.email || "")}" data-departamento="${escapeHtml(u.department || "")}" data-role="${escapeHtml(u.role || "profesor")}" data-username="${escapeHtml(u.username || "")}" class="text-xs px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editar</button>
+            <button data-action="edit-user" data-uid="${uid}" data-nombre="${(u.displayName || "").replace(/"/g, "&quot;")}" data-email="${(u.email || "").replace(/"/g, "&quot;")}" data-departamento="${escapeHtml(u.department || "")}" data-role="${escapeHtml(u.role || "profesor")}" data-username="${(u.username || "").replace(/"/g, "&quot;")}" class="text-xs px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">Editar</button>
             <button data-action="reset-pass" data-uid="${uid}" class="text-xs px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 transition" title="Restablecer contraseña" ${isSelf ? "disabled" : ""}>Contraseña</button>
-            <button data-action="delete-user" data-uid="${uid}" data-nombre="${escapeHtml(u.displayName || "Sin nombre")}" data-username="${escapeHtml(u.username || "")}" data-email="${escapeHtml(u.email || "")}" class="text-xs px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition" title="${isSelf ? "Eliminar tu propia cuenta (se cerrará tu sesión)" : "Eliminar usuario y todos sus datos"}">Eliminar</button>
+            <button data-action="delete-user" data-uid="${uid}" data-nombre="${(u.displayName || "Sin nombre").replace(/"/g, "&quot;")}" data-username="${(u.username || "").replace(/"/g, "&quot;")}" data-email="${(u.email || "").replace(/"/g, "&quot;")}" class="text-xs px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition" title="${isSelf ? "Eliminar tu propia cuenta (se cerrará tu sesión)" : "Eliminar usuario y todos sus datos"}">Eliminar</button>
           </div>
         </td>
       </tr>`;
@@ -6530,7 +6522,7 @@ window._openEditUserDialog = (uid, nombre, email, departamento, rol, username) =
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre y apellidos *</label>
-          <input id="edituser-nombre" type="text" value="${escapeHtml(nombre || "")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+          <input id="edituser-nombre" type="text" value="${(nombre || "").replace(/"/g, "&quot;")}" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Departamento *</label>
@@ -6820,7 +6812,7 @@ window._openDeleteUsuarioDialog = (uid, nombre, email, username) => {
       </div>
       <div class="p-5 border-t border-slate-200 flex flex-wrap gap-2">
         <button data-action="close-delete-user-dialog" class="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-medium">Cancelar</button>
-        <button data-action="confirm-delete-usuario" data-uid="${uid}" data-nombre="${escapeHtml(nombre)}" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-sm font-semibold flex items-center gap-1.5" id="deluser-btn">
+        <button data-action="confirm-delete-usuario" data-uid="${uid}" data-nombre="${nombre.replace(/"/g, '&quot;')}" class="ml-auto px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-sm font-semibold flex items-center gap-1.5" id="deluser-btn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           Eliminar definitivamente
         </button>
@@ -7964,27 +7956,20 @@ onAuthStateChanged(auth, async (user) => {
 // evita el clásico "no veo los cambios" por caché de la PWA.
 function _showUpdateBanner(deployed) {
   if (document.getElementById("update-banner")) return;
-  const titulo = deployed
-    ? `Versión nueva disponible (v${escapeHtml(deployed)}).`
-    : "Hay una versión nueva de la aplicación lista.";
-  const detalle = deployed
-    ? `<span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>`
-    : `<span class="opacity-90">Recarga cuando te venga bien para aplicarla: nunca se recarga sola, para no perder lo que estés escribiendo.</span>`;
   const bar = document.createElement("div");
   bar.id = "update-banner";
   bar.className = "fixed bottom-0 inset-x-0 z-[60] bg-amber-500 text-white shadow-lg";
   bar.innerHTML = `
     <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-2 text-sm">
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="font-semibold">${titulo}</span>
-      ${detalle}
+      <span class="font-semibold">Versión nueva disponible (v${escapeHtml(deployed)}).</span>
+      <span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>
       <button id="btn-update-reload" class="ml-auto px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-amber-700 text-xs font-bold">Recargar ahora</button>
     </div>`;
   document.body.appendChild(bar);
   const btn = document.getElementById("btn-update-reload");
   if (btn) btn.onclick = () => location.reload();
 }
-window._showUpdateBanner = _showUpdateBanner; // hook para consola/pruebas
 
 async function _checkDeployedVersion() {
   try {
@@ -8054,16 +8039,11 @@ if (_swRegistrable) {
       })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   });
-  // ¿Ya controlaba un SW la página al cargar? Si no, el primer controllerchange
-  // es la PRIMERA instalación (primera visita o tras borrar datos del sitio):
-  // no es un cambio de versión y no debe avisar ni recargar.
-  window._hadSwController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!window._hadSwController) { window._hadSwController = true; return; }
-    // Cambio real de SW con la página abierta (versión nueva instalada):
-    // NUNCA recarga automática (podría perderse texto sin guardar); se muestra
-    // el aviso no intrusivo con el botón «Recargar ahora».
-    _showUpdateBanner();
+    if (!window._swReloaded) {
+      window._swReloaded = true;
+      window.location.reload();
+    }
   });
 }
 

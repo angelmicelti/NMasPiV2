@@ -406,7 +406,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.30";
+const APP_VERSION = "2.28";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -2688,7 +2688,7 @@ function renderLogin() {
 
         <p class="text-xs text-slate-500 text-center mt-4 px-2">Entra con tu usuario IdEA como usuario y también como contraseña. Tras el primer acceso, puedes cambiar la contraseña si lo deseas.</p>
         <p class="text-xs text-slate-500 text-center mt-1 px-2">Las evidencias se asocian con tu cuenta.</p>
-        <p class="text-[10px] text-slate-400 text-center mt-1">ñ+&pi; v${APP_VERSION}</p>
+        <p class="text-[10px] text-slate-400 text-center mt-1">Gestión de usuarios v${APP_VERSION}</p>
       </div>
     </div>`;
 
@@ -7964,27 +7964,20 @@ onAuthStateChanged(auth, async (user) => {
 // evita el clásico "no veo los cambios" por caché de la PWA.
 function _showUpdateBanner(deployed) {
   if (document.getElementById("update-banner")) return;
-  const titulo = deployed
-    ? `Versión nueva disponible (v${escapeHtml(deployed)}).`
-    : "Hay una versión nueva de la aplicación lista.";
-  const detalle = deployed
-    ? `<span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>`
-    : `<span class="opacity-90">Recarga cuando te venga bien para aplicarla: nunca se recarga sola, para no perder lo que estés escribiendo.</span>`;
   const bar = document.createElement("div");
   bar.id = "update-banner";
   bar.className = "fixed bottom-0 inset-x-0 z-[60] bg-amber-500 text-white shadow-lg";
   bar.innerHTML = `
     <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-2 text-sm">
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="font-semibold">${titulo}</span>
-      ${detalle}
+      <span class="font-semibold">Versión nueva disponible (v${escapeHtml(deployed)}).</span>
+      <span class="opacity-90">Estás viendo la v${escapeHtml(APP_VERSION)} guardada en caché.</span>
       <button id="btn-update-reload" class="ml-auto px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-amber-700 text-xs font-bold">Recargar ahora</button>
     </div>`;
   document.body.appendChild(bar);
   const btn = document.getElementById("btn-update-reload");
   if (btn) btn.onclick = () => location.reload();
 }
-window._showUpdateBanner = _showUpdateBanner; // hook para consola/pruebas
 
 async function _checkDeployedVersion() {
   try {
@@ -8054,16 +8047,11 @@ if (_swRegistrable) {
       })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   });
-  // ¿Ya controlaba un SW la página al cargar? Si no, el primer controllerchange
-  // es la PRIMERA instalación (primera visita o tras borrar datos del sitio):
-  // no es un cambio de versión y no debe avisar ni recargar.
-  window._hadSwController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!window._hadSwController) { window._hadSwController = true; return; }
-    // Cambio real de SW con la página abierta (versión nueva instalada):
-    // NUNCA recarga automática (podría perderse texto sin guardar); se muestra
-    // el aviso no intrusivo con el botón «Recargar ahora».
-    _showUpdateBanner();
+    if (!window._swReloaded) {
+      window._swReloaded = true;
+      window.location.reload();
+    }
   });
 }
 
