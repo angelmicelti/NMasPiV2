@@ -13,7 +13,7 @@
 // APP_VERSION de nmaspi.html. La activación borra las cachés antiguas y
 // skipWaiting()+clients.claim() ponen la versión nueva en marcha al momento.
 
-const CACHE_NAME = 'nmaspi-v2.22';
+const CACHE_NAME = 'nmaspi-v2.24';
 const STATIC_ASSETS = [
   './nmaspi.html',
 ];
@@ -46,6 +46,12 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // Solo http(s) (v2.23): las extensiones del navegador inyectan peticiones con
+  // otros esquemas (chrome-extension:) que atraviesan este handler; cache.put()
+  // con ellas lanza "TypeError: Failed to execute 'put' on 'Cache': Request
+  // scheme ... is unsupported". Se ignoran sin más.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
   // Saltar Firebase y CDNs dinámicos
   if (url.hostname.includes('firebase') ||
