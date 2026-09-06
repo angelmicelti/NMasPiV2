@@ -409,7 +409,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.22";
+const APP_VERSION = "2.24";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -979,6 +979,7 @@ const state = {
   userProfile: null, // { role, department, displayName, email }
   loading: true,
   view: { name: "home" },
+  navHistory: [], // pila de navegación del botón flotante «Volver» (v2.24): vistas anteriores
   evidenciasLector: [],
   evidenciasRM: [],
   feedback: [], // aportaciones «Feedback entre compañer@s» del curso escolar activo (v2.21)
@@ -1136,6 +1137,12 @@ function _textoAvisoReglas(col) {
     return {
       principal: "<b>Reglas de Firestore desactualizadas:</b> la colección <code>usuarios</code> no permite al administrador leer los perfiles. La lista de usuarios de Gestión de usuarios fallará hasta publicar las reglas nuevas.",
       consola: "las reglas publicadas no permiten al administrador leer la colección 'usuarios' (lista de perfiles)",
+    };
+  }
+  if (col === "aportaciones") {
+    return {
+      principal: "<b>Reglas de Firestore desactualizadas:</b> falta la colección <code>aportaciones</code> (Feedback entre compañer@s). La lista de aportaciones quedará vacía y no se podrá registrar ninguna hasta publicar las reglas nuevas.",
+      consola: "falta la colección 'aportaciones' (Feedback entre compañer@s)",
     };
   }
   return {
@@ -1519,7 +1526,11 @@ function subscribeAllAportaciones(cb) {
     const items = [];
     snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
     cb(items);
-  }, (err) => { console.error("subscribeAportaciones:", err); cb([]); });
+  }, (err) => {
+    console.error("subscribeAportaciones:", err);
+    if ((err.code || "") === "permission-denied") avisoReglasDesactualizadas("aportaciones");
+    cb([]);
+  });
 }
 async function addAportacion(data) {
   const payload = {
@@ -2708,6 +2719,11 @@ function renderLogin() {
       }
     }
 
+    // Diagnóstico: deja constancia del correo interno usado para el intento
+    // (sintético <usuario>@iesvdv.planes o el correo real antiguo). Firebase
+    // devuelve auth/invalid-credential TANTO si la contraseña es errónea COMO si
+    // la cuenta Auth no existe: este log permite distinguir el caso real.
+    console.info("[login] Intentando acceso como:", email);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       // onAuthStateChanged se encarga del resto
@@ -2892,6 +2908,8 @@ async function checkBootstrapNeeded() {
 // -----------------------------------------------------------------------------
 function renderAppShell() {
   const v = state.view;
+  // Destino del botón flotante «Volver» (v2.24): la última vista de la pila, o Inicio si se agotó
+  const volverHacia = etiquetaVista(state.navHistory[state.navHistory.length - 1]) || "Inicio";
   const displayName = state.userProfile?.displayName || state.user?.displayName || state.user?.email?.split("@")[0] || "Profesor/a";
   const userRole = state.userProfile?.role || "profesor";
   const userDept = state.userProfile?.department || "";
@@ -2939,7 +2957,7 @@ function renderAppShell() {
             </div>
           </button>
 
-          <nav class="hidden md:flex items-center gap-1">
+          <nav class="hidden lg:flex items-center gap-1">
             ${navItems.map(item => `
               <button onclick='window._go(${JSON.stringify(item.view).replace(/'/g, "&#39;")})'
                 class="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 transition ${isActive(item) ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-100'}">
@@ -2985,7 +3003,7 @@ function renderAppShell() {
                 </button>
               </div>
             </div>
-            <button id="burger-btn" class="md:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Abrir menú">
+            <button id="burger-btn" class="lg:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Abrir menú">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
           </div>
@@ -2993,7 +3011,7 @@ function renderAppShell() {
       </header>
 
       <!-- Mobile menu -->
-      <div id="mobile-menu" class="hidden fixed inset-0 z-50 md:hidden">
+      <div id="mobile-menu" class="hidden fixed inset-0 z-50 lg:hidden">
         <div class="absolute inset-0 bg-black/40" id="mobile-menu-overlay"></div>
         <div class="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl flex flex-col">
           <div class="p-4 border-b border-slate-200 flex items-center justify-between">
@@ -3068,6 +3086,18 @@ function renderAppShell() {
           <p class="mt-0.5">${INSTITUTO.localidad} · Curso ${INSTITUTO.curso} · Planes Lector y de Razonamiento Matemático</p>
         </div>
       </footer>
+
+      <!-- Botón flotante «Volver» (v2.24): fijo a la derecha, a media altura, en toda
+           subpantalla. Retrocede por la pila de navegación hasta llegar a Inicio.
+           Debajo de los modales (z-50), a la par del header (z-40). Deja paso a los
+           bordes con safe-area y tiene objetivo táctil de 44px. -->
+      ${v.name !== "home" ? `
+      <button id="btn-volver-flotante" onclick="window._goBack()"
+        title="Volver a ${volverHacia}" aria-label="Volver a ${volverHacia}"
+        class="z-40 bg-white/85 backdrop-blur-sm border border-slate-200 shadow-lg text-slate-600 hover:text-blue-700 hover:border-blue-300 hover:bg-white hover:shadow-xl active:scale-90 transition-all"
+        style="position:fixed; display:flex; align-items:center; justify-content:center; width:2.75rem; height:2.75rem; padding:0; border-radius:9999px; right:max(0.75rem, env(safe-area-inset-right)); top:50%; transform:translateY(-50%);">
+        <svg style="width:1.25rem; height:1.25rem; pointer-events:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      </button>` : ""}
     </div>`;
 
   // User menu toggle
@@ -3151,8 +3181,46 @@ function renderMain() {
   attachHandlers();
 }
 
-// Expose navigation helpers
-window._go = (view) => {
+// -----------------------------------------------------------------------------
+// NAVEGACIÓN (v2.24): «Volver» flotante + pila de vistas.
+// - _go(view): navega APILANDO la vista actual en state.navHistory (tope 30).
+// - _goBack(): desapila y vuelve a la vista anterior; si la pila está vacía, Inicio.
+// - No se apila si la vista destino es la MISMA pantalla (nombre + cursoId).
+// - La pila se vacía al iniciar sesión (reset de la sesión en onAuthStateChanged).
+// -----------------------------------------------------------------------------
+const NOMBRE_VISTA = {
+  "home": "Inicio",
+  "plan-lector": "Plan Lector",
+  "cronograma-lector": "Cronograma",
+  "recursos-cl": "Recursos de Lectura",
+  "razonamiento-matematico": "Razonamiento Matemático",
+  "curso-rm": "Curso",
+  "recursos-rm": "Recursos de RM",
+  "mi-perfil": "Mi Perfil",
+  "informes": "Informes de Uso",
+  "gestion-usuarios": "Gestión de Usuarios",
+  "cursos-escolares": "Cursos Escolares",
+};
+// Etiqueta legible de una vista (con parámetros: curso-rm muestra el nombre del curso)
+function etiquetaVista(view) {
+  if (!view) return "";
+  if (view.name === "curso-rm" && view.cursoId) {
+    const c = RM_CURSOS.find(x => x.id === view.cursoId);
+    return c?.nombre || view.cursoId;
+  }
+  return NOMBRE_VISTA[view.name] || view.name;
+}
+// ¿Son la misma pantalla? (mismo nombre y mismos parámetros relevantes)
+function mismaVista(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.name === b.name && (a.cursoId || null) === (b.cursoId || null);
+}
+function navigateTo(view, { push = true } = {}) {
+  if (push && !mismaVista(view, state.view)) {
+    state.navHistory.push({ ...state.view });
+    if (state.navHistory.length > 30) state.navHistory.shift(); // tope de seguridad
+  }
   state.view = view;
   state.openEvals = new Set();
   state.filter = { type: "all", value: "" };
@@ -3160,6 +3228,12 @@ window._go = (view) => {
   state.showHelp = {};
   window.scrollTo({ top: 0, behavior: "smooth" });
   renderAppShell();
+}
+// Expose navigation helpers
+window._go = (view) => navigateTo(view, { push: true });
+window._goBack = () => {
+  const prev = state.navHistory.pop();
+  navigateTo(prev || { name: "home" }, { push: false });
 };
 window._closeMobileMenu = () => document.getElementById("mobile-menu")?.classList.add("hidden");
 window._logout = () => signOut(auth);
@@ -7476,7 +7550,7 @@ window._openCursoProfesoresDialog = (cursoId) => {
         </h2>
         <p class="text-sm text-slate-500 mt-1">Marca quién pertenece a este curso. Los cambios se guardan al pulsar «Guardar».</p>
       </div>
-      <div class="p-5 overflow-y-auto space-y-3">
+      <div class="p-5 overflow-y-auto space-y-3 flex-1 min-h-0">
         <div id="curso-prof-curso-id-holder" class="hidden" data-curso-id="${escapeHtml(curso.id)}"></div>
         ${usuarios.length === 0
           ? `<p class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">No hay perfiles de profesorado cargados todavía. Puedes añadir identificadores manualmente (uid, correo o nombre de usuario) en el campo de abajo.</p>`
@@ -7991,6 +8065,7 @@ onAuthStateChanged(auth, async (user) => {
     // los estados efímeros de vista (el mismo reset que hace _go) y el modo de
     // borrado masivo, para que cada sesión empiece limpia.
     state.view = { name: "home" };
+    state.navHistory = []; // cada sesión empieza sin historial de «Volver» (v2.24)
     state.openEvals = new Set();
     state.filter = { type: "all", value: "" };
     state.showReports = false;
