@@ -2636,7 +2636,7 @@ function renderLogin() {
         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 sm:p-6 space-y-3">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Usuario</label>
-            <input id="login-user" type="text" placeholder="ej: mgarcia" autocomplete="username" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+            <input id="login-user" type="text" placeholder="ej: jandluz123" autocomplete="username" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
@@ -2665,7 +2665,7 @@ function renderLogin() {
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Usuario *</label>
-              <input id="boot-user" type="text" placeholder="ej: mgarcia" autocomplete="username" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none" />
+              <input id="boot-user" type="text" placeholder="ej: jandluz123" autocomplete="username" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none" />
               <p class="text-xs text-slate-500 mt-1">3-30 caracteres: letras minúsculas, números, punto, guion o guion bajo. Con este nombre entrarás en la app.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -5553,7 +5553,7 @@ function viewGestionUsuarios() {
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Usuario *</label>
-              <input id="nuUser" type="text" placeholder="ej: mgarcia" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+              <input id="nuUser" type="text" placeholder="ej: jandluz123" autocapitalize="none" class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
               <p class="text-xs text-slate-500 mt-1">3-30 caracteres: minúsculas, números, punto, guion o guion bajo. Es lo que usará para entrar.</p>
             </div>
           </div>
@@ -6067,7 +6067,7 @@ window._downloadTemplate = () => {
   if (typeof XLSX === "undefined") { alert("Error: librería XLSX no cargada."); return; }
 
   const headers = ["Nombre", "Usuario", "Departamento", "Rol", "Contraseña"];
-  const sampleRow1 = ["María García Pérez", "mgarcia", "Lengua Castellana", "profesor", "Mariposa29"];
+  const sampleRow1 = ["Juan Anda Luz", "jandluz123", "Lengua Castellana", "profesor", "Mariposa29"];
   const sampleRow2 = ["Juan López Ruiz", "jlopez", "Matemáticas", "profesor", "Tigre456"];
 
   const wsData = [headers, sampleRow1, sampleRow2];
@@ -6677,7 +6677,7 @@ window._saveNewUsuario = async () => {
   const showError = (m) => { err.textContent = m; err.classList.remove("hidden"); };
 
   if (nombre.length < 3) { showError("Indica el nombre completo del profesor/a."); return; }
-  if (!username) { showError("Indica el nombre de usuario con el que entrará (ej: mgarcia)."); return; }
+  if (!username) { showError("Indica el nombre de usuario con el que entrará (ej: jandluz123)."); return; }
   if (!isValidUsername(username)) { showError("El nombre de usuario no es válido (3-30 caracteres: letras minúsculas, números, punto, guion o guion bajo)."); return; }
   if (!departamento) { showError("Selecciona el departamento."); return; }
   if (password.length < 6) { showError("La contraseña debe tener al menos 6 caracteres."); return; }
@@ -7434,7 +7434,7 @@ window._openCursoProfesoresDialog = (cursoId) => {
         }
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Identificadores adicionales (uid, correo o usuario, separados por comas)</label>
-          <textarea id="curso-prof-manual" rows="2" placeholder="uid de Firebase, profesor@iesvdv.es, mgarcia…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-mono text-xs">${escapeHtml(manualRefs.join(", "))}</textarea>
+          <textarea id="curso-prof-manual" rows="2" placeholder="uid de Firebase, profesor@iesvdv.es, jandluz123…" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-mono text-xs">${escapeHtml(manualRefs.join(", "))}</textarea>
           <p class="text-xs text-slate-500 mt-1">Se mantienen los identificadores que ya estaban asignados y no coinciden con ningún perfil de la lista.</p>
         </div>
         <div id="curso-prof-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
