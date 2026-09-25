@@ -257,8 +257,14 @@ document.addEventListener("click", (e) => {
       case "close-group-menu":
         window._closeGroupMenu && window._closeGroupMenu();
         break;
-      case "select-group-lector":
-        window._selectGroupLector && window._selectGroupLector(btn.dataset.grupo);
+      case "toggle-group-lector":
+        window._toggleGroupLector && window._toggleGroupLector(btn.dataset.grupo);
+        break;
+      case "preset-grupos-lector":
+        window._presetGruposLector && window._presetGruposLector(btn.dataset.grupos);
+        break;
+      case "confirm-group-lector":
+        window._confirmGroupLector && window._confirmGroupLector();
         break;
       case "edit-ev-lector":
         if (btn.dataset.stopPropagation) e.stopPropagation();
@@ -303,6 +309,12 @@ document.addEventListener("click", (e) => {
       // --- Evidencias RM ---
       case "open-ev-rm":
         window._openEvRMDialog && window._openEvRMDialog(btn.dataset.mode, btn.dataset.grupo, parseInt(btn.dataset.semana), parseInt(btn.dataset.sesion), btn.dataset.materia, btn.dataset.actividad, btn.dataset.codigo);
+        break;
+      case "toggle-grupo-rm":
+        window._toggleGrupoRM && window._toggleGrupoRM(btn.dataset.grupo);
+        break;
+      case "preset-grupos-rm":
+        window._presetGruposRM && window._presetGruposRM(btn.dataset.grupos);
         break;
       case "edit-ev-rm":
         window._editEvidenciaRM && window._editEvidenciaRM(btn.dataset.id, btn.dataset.sesion, btn.dataset.materia, btn.dataset.actividad, btn.dataset.codigo);
@@ -406,7 +418,7 @@ const INSTITUTO = {
 // Versión visible de la aplicación. Aparece en el pie del login y en el panel de
 // gestión de usuarios para poder comprobar de un vistazo si el dispositivo está
 // ejecutando la versión nueva o una copia antigua cacheada por la PWA.
-const APP_VERSION = "2.30";
+const APP_VERSION = "2.31";
 
 const CLASS_GROUPS = ["1ºA", "1ºB", "2ºA", "2ºB", "3ºA", "3ºB", "3ºDiver", "4º Ciencias", "4º Sociales", "4º Ciclos", "4º Diver"];
 
@@ -437,6 +449,21 @@ const RM_CURSOS = [
     materias: ["Lengua", "Geografía e Historia", "Inglés", "Religión", "Matemáticas", "Tecnología", "Cultura Científica", "Expresión Artística", "Música", "Dibujo Técnico", "Educación Física"] },
   { id: "4diver", nombre: "4º Diversificación", gradiente: "from-rose-600 to-pink-600", grupos: ["4º Diver"],
     materias: ["Ámbito Socio-Lingüístico", "Religión", "Ámbito Científico-Tecnológico", "Cultura Científica", "Expresión Artística", "Música", "Educación Física", "Dibujo Técnico"] },
+];
+
+// Mapa grupo → curso RM. Permite registrar una misma actividad en grupos que
+// pertenecen a cursos distintos (p. ej. 3ºA + 3ºDiver) resolviendo el cursoId
+// de cada grupo en el momento de guardar.
+const GRUPO_A_CURSO_RM = {};
+RM_CURSOS.forEach(c => c.grupos.forEach(g => { GRUPO_A_CURSO_RM[g] = c.id; }));
+
+// Combinaciones rápidas de grupos para la selección múltiple (Plan Lector y RM).
+// Cada entrada marca de una vez los grupos que forman un agrupamiento habitual.
+const COMBINACIONES_GRUPOS = [
+  { etiqueta: "3ºA + 3ºB", grupos: ["3ºA", "3ºB"] },
+  { etiqueta: "3ºA + 3ºDiver", grupos: ["3ºA", "3ºDiver"] },
+  { etiqueta: "3ºB + 3ºDiver", grupos: ["3ºB", "3ºDiver"] },
+  { etiqueta: "Los cuatro de 4º", grupos: ["4º Ciclos", "4º Ciencias", "4º Diver", "4º Sociales"] },
 ];
 
 // Colores de materas (unión de todos los cursos + colores por defecto)
@@ -3450,7 +3477,7 @@ function viewCronogramaLector() {
             <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
               <li>${EVALS.length} evaluaciones (${evaluacionesWeeksText(EVALS)} semanas). Total: ${EVALS.reduce((a, e) => a + (parseInt(e.weeks, 10) || 0), 0)} semanas. Pulsa la <strong>cabecera</strong> de cada evaluación para <strong>desplegarla o plegarla</strong>.</li>
               <li>La 1ª columna indica la <strong>hora de lectura</strong> de esa semana (rotación cada 6 semanas).</li>
-              <li>Pulsa la <strong>celda del día</strong> y elige tu <strong>grupo</strong> en el menú (verde = ya tiene evidencia, con el nombre de quien la registró).</li>
+              <li>Pulsa la <strong>celda del día</strong> y elige tus <strong>grupos</strong> en el menú: puedes marcar <strong>uno o varios</strong> (p. ej. 3ºA + 3ºDiver, o los cuatro de 4º) y la actividad se registrará en <strong>todos los seleccionados</strong>. Los grupos marcados en verde ya tienen evidencia ese día y no se pueden volver a registrar.</li>
               <li>Rellena el formulario: nombre (ya relleno con el de tu cuenta), <strong>tipología textual</strong> y <strong>tipo de texto</strong>; observaciones opcional. Guarda con «Registrar».</li>
               <li>La celda queda <span class="text-emerald-600 font-semibold">verde</span>: <strong>✓ grupo</strong> = tuya (puedes editarla o eliminarla); <strong>🔒 grupo</strong> = de otro (solo lectura). Solo el autor o un administrador puede modificarla.</li>
               <li>Todo se guarda al momento en Firebase, asociado a tu cuenta y al curso escolar activo.</li>
@@ -3539,51 +3566,103 @@ window._toggleEval = (idx) => {
 };
 
 // -----------------------------------------------------------------------------
-// 12. GRUPO MENU (Sheet) y DIÁLOGO EVIDENCIA LECTOR
+// 12. GRUPO MENU (Sheet, selección múltiple) y DIÁLOGO EVIDENCIA LECTOR
 // -----------------------------------------------------------------------------
 let pendingLectorCell = null;
+let pendingLectorSel = new Set();        // grupos marcados en el menú multiselección
+let pendingLectorRegistered = new Set(); // grupos que ya tienen evidencia ese día
 
 window._openGroupMenu = (fecha, hora, semana, dia) => {
   pendingLectorCell = { fecha, hora, semana, dia };
-  const evMap = new Map();
-  state.evidenciasLector.forEach(e => evMap.set(`${e.fecha}|${e.grupo}`, e));
+  pendingLectorSel = new Set();
+  pendingLectorRegistered = new Set();
+  state.evidenciasLector.forEach(e => {
+    if (e.fecha === fecha) pendingLectorRegistered.add(e.grupo);
+  });
 
   const overlay = document.createElement("div");
   overlay.id = "group-menu-overlay";
   overlay.className = "fixed inset-0 z-50 flex items-end sm:items-center justify-center";
   overlay.innerHTML = `
     <div class="absolute inset-0 bg-black/40" data-action="close-group-menu"></div>
-    <div class="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md p-5 slide-up max-h-[80vh] overflow-y-auto">
+    <div class="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md p-5 slide-up max-h-[85vh] overflow-y-auto">
       <div class="flex items-center gap-2 mb-1">
-        <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>
-        <h2 class="text-lg font-bold text-slate-800">Selecciona tu grupo</h2>
+        <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <h2 class="text-lg font-bold text-slate-800">Selecciona grupo(s)</h2>
       </div>
-      <p class="text-sm text-slate-500 mb-4">${dia}, semana ${semana} · ${formatDateES(new Date(fecha))} · ${hora}ª hora</p>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <p class="text-sm text-slate-500 mb-2">${dia}, semana ${semana} · ${formatDateES(new Date(fecha))} · ${hora}ª hora</p>
+      <p class="text-xs text-slate-500 mb-3">Puedes marcar <strong>uno o varios grupos</strong> (p. ej. 3ºA + 3ºDiver): la actividad se registrará en <strong>todos los seleccionados</strong>.</p>
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        ${COMBINACIONES_GRUPOS.map(c => `<button type="button" data-action="preset-grupos-lector" data-grupos="${c.grupos.join("|")}" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition">+ ${escapeHtml(c.etiqueta)}</button>`).join("")}
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="group-menu-grid">
         ${CLASS_GROUPS.map(g => {
-          const existing = evMap.get(`${fecha}|${g}`);
+          const ya = pendingLectorRegistered.has(g);
           return `
-            <button data-action="select-group-lector" data-grupo="${g}"
-              class="p-3 rounded-lg border text-sm font-semibold transition ${existing ? 'bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100' : 'bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50'}">
-              <span class="block">${g}</span>
-              ${existing ? `<span class="text-[10px] font-normal text-emerald-600 mt-0.5 block">${escapeHtml(existing.profesor || "")}</span>` : ""}
+            <button type="button" data-action="toggle-group-lector" data-grupo="${escapeHtml(g)}" ${ya ? 'disabled title="Este grupo ya tiene evidencia registrada ese día"' : ""}
+              class="p-3 rounded-lg border text-sm font-semibold transition text-left">
+              <span class="block">${escapeHtml(g)}</span>
+              ${ya ? `<span class="text-[10px] font-normal text-emerald-600 mt-0.5 block">✓ ya registrada</span>` : ""}
             </button>`;
         }).join("")}
       </div>
+      <div class="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200">
+        <span class="text-xs text-slate-500"><span id="group-menu-count" class="font-bold text-slate-700">0</span> seleccionado(s)</span>
+        <div class="flex gap-2">
+          <button type="button" data-action="close-group-menu" class="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-medium">Cancelar</button>
+          <button type="button" data-action="confirm-group-lector" id="group-menu-continue" disabled class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed">Continuar</button>
+        </div>
+      </div>
     </div>`;
   document.body.appendChild(overlay);
+  window._syncGroupMenuUI();
+};
+
+window._syncGroupMenuUI = () => {
+  const grid = document.getElementById("group-menu-grid");
+  if (grid) {
+    grid.querySelectorAll("[data-grupo]").forEach(btn => {
+      const g = btn.dataset.grupo;
+      const ya = pendingLectorRegistered.has(g);
+      const sel = pendingLectorSel.has(g);
+      btn.className = "p-3 rounded-lg border text-sm font-semibold transition text-left " +
+        (ya ? "bg-emerald-50 border-emerald-400 text-emerald-700 opacity-70 cursor-not-allowed"
+          : sel ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+            : "bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50");
+    });
+  }
+  const count = document.getElementById("group-menu-count");
+  if (count) count.textContent = String(pendingLectorSel.size);
+  const cont = document.getElementById("group-menu-continue");
+  if (cont) cont.disabled = pendingLectorSel.size === 0;
+};
+
+window._toggleGroupLector = (grupo) => {
+  if (!grupo || pendingLectorRegistered.has(grupo)) return;
+  if (pendingLectorSel.has(grupo)) pendingLectorSel.delete(grupo);
+  else pendingLectorSel.add(grupo);
+  window._syncGroupMenuUI();
+};
+
+window._presetGruposLector = (grupos) => {
+  if (!grupos) return;
+  grupos.split("|").forEach(g => { if (g && !pendingLectorRegistered.has(g)) pendingLectorSel.add(g); });
+  window._syncGroupMenuUI();
+};
+
+window._confirmGroupLector = () => {
+  if (!pendingLectorCell || pendingLectorSel.size === 0) return;
+  const cell = pendingLectorCell;
+  const grupos = [...pendingLectorSel];
+  window._closeGroupMenu();
+  openEvidenciaLectorDialog({ mode: "create", grupos, ...cell });
 };
 
 window._closeGroupMenu = () => {
   document.getElementById("group-menu-overlay")?.remove();
   pendingLectorCell = null;
-};
-
-window._selectGroupLector = (grupo) => {
-  if (!pendingLectorCell) return;
-  const cell = pendingLectorCell;
-  window._closeGroupMenu();
-  openEvidenciaLectorDialog({ mode: "create", grupo, ...cell });
+  pendingLectorSel = new Set();
+  pendingLectorRegistered = new Set();
 };
 
 window._viewEvidenciaLector = (id) => {
@@ -3625,6 +3704,7 @@ function openEvidenciaLectorDialog(data) {
   overlay.className = "fixed inset-0 z-50 flex items-center justify-center p-3";
   const ev = data.existing;
   const isView = data.mode === "view";
+  const grupos = data.grupos && data.grupos.length ? data.grupos : (data.grupo ? [data.grupo] : []);
   const profesorVal = ev?.profesor || state.user?.displayName || "";
   const tipologiaVal = ev?.tipologia || "";
   const tipoTextoVal = ev?.tipoTexto || "";
@@ -3639,8 +3719,9 @@ function openEvidenciaLectorDialog(data) {
           <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
           ${isView ? "Consultar evidencia" : (data.mode === "edit" ? "Editar evidencia" : "Registrar evidencia de lectura")}
         </h2>
-        <p class="text-sm text-slate-500 mt-1">${escapeHtml(String(data.dia))}, semana ${escapeHtml(String(data.semana))} · ${formatDateES(new Date(data.fecha))} · ${escapeHtml(String(data.hora))}ª hora · Grupo <strong>${escapeHtml(String(data.grupo))}</strong></p>
-        ${isView ? `<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-2 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solo lectura — no eres el autor</p>` : ""}
+        <p class="text-sm text-slate-500 mt-1">${escapeHtml(String(data.dia))}, semana ${escapeHtml(String(data.semana))} · ${formatDateES(new Date(data.fecha))} · ${escapeHtml(String(data.hora))}ª hora · Grupo(s): <strong>${grupos.map(g => escapeHtml(g)).join(", ") || "—"}</strong></p>
+        ${isView ? `<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-2 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solo lectura — no eres el autor</p>`
+          : (grupos.length > 1 ? `<p class="text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded px-2 py-1 mt-2">La actividad se registrará en los <strong>${grupos.length}</strong> grupos seleccionados.</p>` : "")}
       </div>
       <div class="p-5 space-y-3">
         <div>
@@ -3715,10 +3796,22 @@ window._saveEvLector = async () => {
     if (data.mode === "edit" && data.existing?.id) {
       await updateEvidenciaLector(data.existing.id, { profesor, tipologia, tipoTexto, observacion });
     } else {
-      await addEvidenciaLector({
-        plan: "lector", grupo: data.grupo, fecha: data.fecha, semana: data.semana,
-        dia: data.dia, hora: data.hora, profesor, tipologia, tipoTexto, observacion,
-      });
+      // Selección múltiple: una evidencia por cada grupo seleccionado, de modo
+      // que la actividad figure en todos los grupos (p. ej. 3ºA + 3ºDiver).
+      const grupos = data.grupos && data.grupos.length ? data.grupos : (data.grupo ? [data.grupo] : []);
+      if (!grupos.length) {
+        err.textContent = "Selecciona al menos un grupo.";
+        err.classList.remove("hidden");
+        btn.disabled = false;
+        btn.textContent = "Registrar";
+        return;
+      }
+      for (const g of grupos) {
+        await addEvidenciaLector({
+          plan: "lector", grupo: g, fecha: data.fecha, semana: data.semana,
+          dia: data.dia, hora: data.hora, profesor, tipologia, tipoTexto, observacion,
+        });
+      }
     }
     window._closeEvLectorDialog();
   } catch (e) {
@@ -4077,7 +4170,7 @@ function viewRMHome() {
               <li>Elige el <strong>curso</strong> con el que vas a trabajar: cada botón abre su cronograma (<strong>${evalsRM.length} evaluaciones</strong>, ${evaluacionesWeeksText(evalsRM)} semanas). Empiezan plegadas: pulsa la <strong>cabecera</strong> para desplegarlas o plegarlas.</li>
               <li>Cada semana tiene <strong>tres sesiones</strong>: 1ª <strong>Matemáticas</strong>, 2ª rotación de materias del ámbito <strong>CT</strong> y 3ª del ámbito <strong>SL/AR</strong>. Bajo cada sesión verás la <strong>actividad sugerida</strong> (no prescriptiva) y el <strong>código de criterio de evaluación</strong>.</li>
               <li>Con los filtros de la parte superior puedes mostrar <strong>una única asignatura</strong>, todas las de un <strong>ámbito</strong> (CT, SL, AR) o volver a «↺ Mostrar todo».</li>
-              <li>Para <strong>registrar la evidencia</strong>: pulsa el botón <strong>+ Grupo</strong> que hay bajo la actividad. El formulario trae tu nombre ya relleno: describe la <strong>actividad realizada</strong> (puedes partir de la sugerencia y ajustarla) y añade <strong>observaciones</strong> si quieres. Guarda con «Registrar».</li>
+              <li>Para <strong>registrar la evidencia</strong>: pulsa el botón <strong>+ Grupo</strong> o <strong>👥 Varios grupos</strong> que hay bajo la actividad. En el formulario puedes marcar <strong>uno o varios grupos</strong> (p. ej. 3ºA + 3ºDiver, o los cuatro de 4º): la actividad se inscribirá en <strong>todos los grupos seleccionados</strong>, aunque pertenezcan a cursos distintos. Trae tu nombre ya relleno: describe la <strong>actividad realizada</strong> (puedes partir de la sugerencia y ajustarla) y añade <strong>observaciones</strong> si quieres. Guarda con «Registrar».</li>
               <li>Cuando una sesión tiene registro, su grupo aparece como ficha verde: <strong>✓</strong> es tuya (puedes editarla o eliminarla); <strong>🔒</strong> es de otro compañero/a (solo lectura). Solo el autor o un administrador puede modificarla.</li>
               <li>El botón <strong>Informes</strong> muestra un resumen del curso y, cuando hay evidencias, el <strong>gráfico de distribución</strong> por asignatura.</li>
               <li>Todo se guarda en <strong>Firebase</strong> al momento, asociado a tu cuenta y al <strong>curso escolar activo</strong>.</li>
@@ -4324,6 +4417,11 @@ function renderWeekRM(sem, curso, isVisible, getEv) {
         }
         <p class="text-[10px] text-slate-500 mt-1"><span class="font-mono bg-slate-100 px-1 py-0.5 rounded">${s.codigo}</span></p>
         <div class="mt-2 flex flex-wrap gap-1.5">
+          <button data-action="open-ev-rm" data-mode="create" data-grupo="" data-semana="${sem.num}" data-sesion="${s.sesion}" data-materia="${s.materia}" data-actividad="${s.actividad}" data-codigo="${s.codigo}"
+            class="text-[10px] sm:text-xs px-2 py-1 rounded-md bg-purple-50 border border-purple-300 text-purple-700 hover:bg-purple-100 transition inline-flex items-center gap-1"
+            title="Registrar la actividad en varios grupos a la vez (selección múltiple)">
+            👥 Varios grupos
+          </button>
           ${curso.grupos.map(g => {
             const ev = getEv(g, sem.num, s.sesion);
             if (ev) {
@@ -4585,9 +4683,21 @@ function openEvidenciaRMDialog(data) {
   overlay.className = "fixed inset-0 z-50 flex items-center justify-center p-3";
   const ev = data.existing;
   const isView = data.mode === "view";
+  const isCreate = data.mode === "create";
   const profesorVal = ev?.profesor || state.user?.displayName || "";
   const actividadRealizadaVal = ev?.actividadRealizada || "";
   const obsVal = ev?.observacion || "";
+
+  // Selección múltiple de grupos (solo al crear): cada grupo puede pertenecer a
+  // un curso distinto (p. ej. 3ºA + 3ºDiver). Los grupos que ya tienen evidencia
+  // en esta sesión quedan deshabilitados para evitar duplicados.
+  const yaRegistrados = new Set(
+    CLASS_GROUPS.filter(g => {
+      const cid = GRUPO_A_CURSO_RM[g] || data.cursoId;
+      return state.evidenciasRM.some(e => e.cursoId === cid && e.grupo === g &&
+        String(e.semana) === String(data.semana) && String(e.sesion) === String(data.sesion));
+    })
+  );
 
   overlay.innerHTML = `
     <div class="absolute inset-0 dialog-overlay" data-action="close-ev-rm"></div>
@@ -4597,7 +4707,7 @@ function openEvidenciaRMDialog(data) {
           <svg class="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
           ${isView ? "Consultar evidencia" : (data.mode === "edit" ? "Editar evidencia" : "Registrar actividad RM")}
         </h2>
-        <p class="text-sm text-slate-500 mt-1">Semana ${escapeHtml(String(data.semana))} · Sesión ${escapeHtml(String(data.sesion))} · ${escapeHtml(String(data.materia))} · Grupo <strong>${escapeHtml(String(data.grupo))}</strong></p>
+        <p class="text-sm text-slate-500 mt-1">Semana ${escapeHtml(String(data.semana))} · Sesión ${escapeHtml(String(data.sesion))} · ${escapeHtml(String(data.materia))} · ${isCreate ? `Grupo(s): <strong id="ev-rm-grupos-header">${data.grupo ? escapeHtml(String(data.grupo)) : "—"}</strong>` : `Grupo <strong>${escapeHtml(String(data.grupo))}</strong>`}</p>
         ${isView ? `<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-2 inline-flex items-center gap-1"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solo lectura — no eres el autor</p>` : ""}
       </div>
       <div class="p-5 space-y-3">
@@ -4606,6 +4716,22 @@ function openEvidenciaRMDialog(data) {
           <p class="text-slate-600 mt-0.5">${escapeHtml(String(data.actividad))}</p>
           <p class="mt-1.5"><span class="font-mono bg-slate-200 px-1.5 py-0.5 rounded text-[10px]">${escapeHtml(String(data.codigo))}</span></p>
         </div>
+        ${isCreate ? `
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Grupos (selección múltiple) *</label>
+          <p class="text-xs text-slate-500 mb-1.5">Marca uno o varios grupos (p. ej. 3ºA + 3ºDiver): la actividad se registrará en <strong>todos los seleccionados</strong>, aunque pertenezcan a cursos distintos.</p>
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            ${COMBINACIONES_GRUPOS.map(c => `<button type="button" data-action="preset-grupos-rm" data-grupos="${c.grupos.join("|")}" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition">+ ${escapeHtml(c.etiqueta)}</button>`).join("")}
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" id="ev-rm-grupos-grid">
+            ${CLASS_GROUPS.map(g => {
+              const ya = yaRegistrados.has(g);
+              return `<button type="button" data-action="toggle-grupo-rm" data-grupo="${escapeHtml(g)}" ${ya ? "disabled" : ""} ${ya ? 'title="Ya hay evidencia de este grupo en esta sesión"' : ""}
+                class="px-2 py-1.5 rounded-md border text-xs font-semibold transition">${escapeHtml(g)}${ya ? ` <span class="text-emerald-600">✓</span>` : ""}</button>`;
+            }).join("")}
+          </div>
+          <p id="ev-rm-grupos-resumen" class="text-xs mt-1.5"></p>
+        </div>` : ""}
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del profesor/a *</label>
           <input id="ev-rm-profesor" type="text" value="${escapeHtml(profesorVal)}" placeholder="Tu nombre" ${isView ? 'disabled' : ''} class="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none ${isView ? 'bg-slate-50 text-slate-600' : ''}" />
@@ -4629,8 +4755,59 @@ function openEvidenciaRMDialog(data) {
     </div>`;
   document.body.appendChild(overlay);
   // Guardar cursoId en el momento de abrir el diálogo (evita stale si el usuario navega)
-  window._currentEvRM = { ...data, cursoId: state.view.cursoId };
+  window._currentEvRM = { ...data, cursoId: state.view.cursoId, yaRegistrados, selGrupos: new Set(isCreate && data.grupo ? [data.grupo] : []) };
+  if (isCreate) window._syncGruposRMUI();
 }
+
+// Sincroniza el aspecto de las fichas de grupo y el resumen del diálogo RM
+window._syncGruposRMUI = () => {
+  const grid = document.getElementById("ev-rm-grupos-grid");
+  const sel = window._currentEvRM?.selGrupos || new Set();
+  if (grid) {
+    grid.querySelectorAll("[data-grupo]").forEach(btn => {
+      const on = sel.has(btn.dataset.grupo);
+      btn.className = "px-2 py-1.5 rounded-md border text-xs font-semibold transition " +
+        (btn.disabled ? "bg-emerald-50 border-emerald-400 text-emerald-700 opacity-70 cursor-not-allowed"
+          : on ? "bg-purple-600 border-purple-600 text-white shadow-sm"
+            : "bg-white border-slate-300 text-slate-600 hover:border-purple-400 hover:bg-purple-50");
+    });
+  }
+  const resumen = document.getElementById("ev-rm-grupos-resumen");
+  if (resumen) {
+    if (sel.size) {
+      resumen.innerHTML = `Se registrará en: <strong>${[...sel].map(escapeHtml).join(", ")}</strong>`;
+      resumen.className = "text-xs text-slate-500 mt-1.5";
+    } else {
+      resumen.textContent = "Selecciona al menos un grupo.";
+      resumen.className = "text-xs text-amber-700 mt-1.5";
+    }
+  }
+  const header = document.getElementById("ev-rm-grupos-header");
+  if (header) header.textContent = sel.size ? [...sel].join(", ") : "—";
+};
+
+window._toggleGrupoRM = (grupo) => {
+  const cur = window._currentEvRM;
+  if (!cur?.selGrupos || !grupo) return;
+  const grid = document.getElementById("ev-rm-grupos-grid");
+  const btn = grid ? [...grid.querySelectorAll("[data-grupo]")].find(b => b.dataset.grupo === grupo) : null;
+  if (btn?.disabled) return;
+  if (cur.selGrupos.has(grupo)) cur.selGrupos.delete(grupo);
+  else cur.selGrupos.add(grupo);
+  window._syncGruposRMUI();
+};
+
+window._presetGruposRM = (grupos) => {
+  const cur = window._currentEvRM;
+  if (!cur?.selGrupos || !grupos) return;
+  const grid = document.getElementById("ev-rm-grupos-grid");
+  grupos.split("|").forEach(g => {
+    if (!g) return;
+    const btn = grid ? [...grid.querySelectorAll("[data-grupo]")].find(b => b.dataset.grupo === g) : null;
+    if (!btn?.disabled) cur.selGrupos.add(g);
+  });
+  window._syncGruposRMUI();
+};
 
 window._closeEvRMDialog = () => {
   document.getElementById("ev-rm-dialog")?.remove();
@@ -4655,11 +4832,28 @@ window._saveEvRM = async () => {
     if (data.mode === "edit" && data.existing?.id) {
       await updateEvidenciaRM(data.existing.id, { profesor, actividadRealizada, observacion });
     } else {
-      await addEvidenciaRM({
-        plan: "rm", cursoId: data.cursoId, grupo: data.grupo, semana: data.semana,
-        sesion: data.sesion, materia: data.materia, actividad: data.actividad, codigo: data.codigo,
-        profesor, actividadRealizada, observacion,
-      });
+      // Selección múltiple: una evidencia por cada grupo marcado. El cursoId se
+      // resuelve grupo a grupo, de modo que la actividad queda inscrita en todos
+      // los grupos seleccionados aunque pertenezcan a cursos distintos.
+      const sel = [...(data.selGrupos || [])];
+      if (!sel.length) {
+        err.textContent = "Selecciona al menos un grupo.";
+        err.classList.remove("hidden");
+        btn.disabled = false;
+        btn.textContent = "Registrar";
+        return;
+      }
+      for (const g of sel) {
+        const cursoIdG = GRUPO_A_CURSO_RM[g] || data.cursoId;
+        const yaRegistrado = state.evidenciasRM.some(e => e.cursoId === cursoIdG && e.grupo === g &&
+          String(e.semana) === String(data.semana) && String(e.sesion) === String(data.sesion));
+        if (yaRegistrado) continue;
+        await addEvidenciaRM({
+          plan: "rm", cursoId: cursoIdG, grupo: g, semana: data.semana,
+          sesion: data.sesion, materia: data.materia, actividad: data.actividad, codigo: data.codigo,
+          profesor, actividadRealizada, observacion,
+        });
+      }
     }
     window._closeEvRMDialog();
   } catch (e) {
